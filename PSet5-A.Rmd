@@ -1,0 +1,134 @@
+---
+author:
+title: "EDAV Fall 2019 PSet 5, part A"
+output: html_document
+
+---
+```{r, include=FALSE}
+knitr::opts_chunk$set(warning = FALSE, message = FALSE, echo = TRUE)
+```
+
+This assignment is designed to help you get started on the final project. Be sure to review the final project instructions (https://edav.info/project.html), in particular the new section on reproducible workflow (https://edav.info/project.html#reproducible-workflow), which summarizes principles that we've discussed in class.
+    
+### 1. The Team
+
+[2 points]
+
+a) Who's on the team? (Include names and UNIs)
+
+* Amogh Mishra am5323
+* Mohit Gulla mcg2208
+* Benjamin Livingston bwl2114
+* Siddhant Shandilya ss5919
+
+
+b) How do you plan to divide up the work? (Grading is on a group basis. The point of asking is to encourage you to think about this.)
+
+This will be determined over time. Mohit and Amogh focused on database querying early on during project choosing, and Siddhant and Benjamin are writing this specific report.
+
+
+### 2. The Questions
+
+[6 points]
+
+List three questions that you hope you will be able to answer from your research.
+
+a) Which airline is the best choice to use the Thanksgiving travel period?
+
+b) Does this vary by region and time? Is there any variation between different days and times of day during the Thanksgiving holiday? Or does the winner stay constant
+
+c) How does airline performance during this holiday compare to the baseline of how airlines usually handle delays?
+
+### 3. Which output format do you plan to use to submit the project? 
+
+[2 points]
+
+We will use an html_document, which will be sufficient for our needs.
+
+### 4. The Data
+
+What is your data source?  What is your method for importing data? Please be specific. Provide relevant information such as any obstacles you're encountering and what you plan to do to overcome them.
+
+The Bureau of Transportation Statistics - we need to trim down airline on-time performance datasets across five separate Novembers (2015 to 2018, as mergers involving Southwest/AirTran and American Airlines/US Airways were not complete by Thanksgiving 2014) so we only get the five dates from each Thanksgiving, and then combine them into one data frame.
+
+[5 points]
+
+
+### 5. Provide a short summary, including 2-3 graphs, of your initial investigations. 
+[10 points]
+
+```{r}
+library(ggplot2)
+library(dplyr)
+library(ggthemes)
+
+thanksgiving = read.csv('thanksgiving.csv')
+```
+
+```{r}
+by_airline = thanksgiving %>% group_by(OP_UNIQUE_CARRIER) %>% summarize(delay = mean(ARR_DELAY_NEW,na.rm=TRUE))
+
+ggplot(by_airline,aes(x=OP_UNIQUE_CARRIER,y=delay)) + 
+  geom_col(position='dodge') +
+  theme_calc() + 
+  xlab('Airline') +
+  ylab('Average Delay')
+```
+
+Ultra low-cost carrier Allegiant (G4) leads the pack, which isn't surprising considering its reputation (but wait, more on this in a second!). Regional airline Mesa Airlines comes next. Hawaiian Airlines has the fewest delays of any airline. 
+
+It is clear that focusing on large carriers will make the most sense for our purposes, since consumers are typically unfamiliar with regional airlines that fly under either a single mainline carrier's brand or multiple brands, and those airlines tend to be available for only a small set of routes.
+
+Among the three major legacy carriers, Delta (DL) has the fewest delays, followed by American Airlines (AA), and United (UA) performs by far the worst. Southwest (WN) performs a little better than American Airlines, and Alaska Airlines (AS) performs a little worse than American Airlines.
+
+Does this change by year, though? How much does our data vary by year?
+```{r}
+by_year = thanksgiving %>% group_by(OP_UNIQUE_CARRIER,year) %>% summarize(delay = mean(ARR_DELAY_NEW,na.rm=TRUE))
+
+ggplot(by_year,aes(x=OP_UNIQUE_CARRIER,y=delay,fill=as.factor(year))) + 
+  geom_col(position=position_dodge2(preserve = "single",width=1)) +
+  scale_color_brewer(palette='Set3') +
+  theme_calc() +
+  xlab('Airline') +
+  ylab('Average Flight Delay') +
+  labs(fill = 'Year')
+```
+
+This graph isn't particularly pretty, but it does the job for our EDA - it shows that major airline OTP stayed fairly steady from 2015 to 2017, and then got much worse in 2018 across the board - perhaps due to the blizzard that occured in part of the country during Thanksgiving 2018. We may need to separate out 2018 when we do our analysis (we will investigate).
+
+This also provides a curious revelation: Allegiant did not have any flights during the Thanksgiving holiday before 2018. No wonder its on time performance was so terrible - it only flew on Thanksgiving during the year when delays were by far the worst.
+
+Again, this furthers our conviction that focusing on large, national, major mainline airlines that flew in all four years will make the most sense for our purposes.
+
+Now let's do a brief look into regionality, looking at the 15 states/territories with the worst delays.
+
+```{r}
+library(forcats)
+by_area = thanksgiving %>% group_by(ORIGIN_STATE_ABR) %>% summarize(average_delay = mean(DEP_DELAY_NEW,na.rm=TRUE),number_of_flights=n()) %>% arrange(-average_delay) %>% head(15)
+
+ggplot(by_area) +
+  geom_col(aes(x=fct_reorder(ORIGIN_STATE_ABR,average_delay),y=average_delay)) +
+  theme_calc() +
+  coord_flip() + 
+  xlab('State') +
+  ylab('Average Delay')
+```
+
+The Pacific Islands lead the pack, but there are barely any flights there. Many small states have the worst OTP, which may be due to high variance.
+
+Let's try only taking states with more than 1000 flights. 
+
+```{r}
+by_area = thanksgiving %>% group_by(ORIGIN_STATE_ABR) %>% summarize(average_delay = mean(DEP_DELAY_NEW,na.rm=TRUE),number_of_flights=n()) %>% arrange(-average_delay) %>% filter(number_of_flights >1000) %>% head(15)
+
+ggplot(by_area) +
+  geom_col(aes(x=fct_reorder(ORIGIN_STATE_ABR,average_delay),y=average_delay)) +
+  theme_calc() +
+  coord_flip() + 
+  xlab('State') +
+  ylab('Average Delay')
+```
+
+Of areas with more than 1000 flights over the four Thanksgiving holiday periods, New Jersey, California, and Oklahoma have the worst delays. Again, the blizzard may be a major consideration here - perhaps we will have to try removing 2018 from the dataset because it skews the dataset.
+
+We will leave it there for now, as we certainly have some questions to consider as we begin our project.
