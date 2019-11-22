@@ -16,8 +16,8 @@ file2016 = file2016 %>% filter(FL_DATE >= ymd('2016-11-23') & FL_DATE <= ymd('20
 file2017 = file2017 %>% filter(FL_DATE >= ymd('2017-11-22') & FL_DATE <= ymd('2017-11-26'))
 file2018 = file2018 %>% filter(FL_DATE >= ymd('2018-11-21') & FL_DATE <= ymd('2018-11-25'))
 
-thanksgiving = bind_rows(file2015,file2016,file2017,file2018)
+november = bind_rows(file2015,file2016,file2017,file2018)
 
-thanksgiving = mutate(thanksgiving,FL_DATE=year(FL_DATE)) %>% rename(year = FL_DATE)
+november = mutate(thanksgiving,FL_DATE=year(FL_DATE)) %>% rename(year = FL_DATE)
 
 write.csv(thanksgiving,'thanksgiving.csv')

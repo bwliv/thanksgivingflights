@@ -100,6 +100,99 @@ This also provides a curious revelation: Allegiant did not have any flights duri
 
 Again, this furthers our conviction that focusing on large, national, major mainline airlines that flew in all four years will make the most sense for our purposes.
 
+We will apply the following criteria for removing airlines:  
+
+*Must have flown flights during Thanksgiving all four years
+*Regional or heavily region-specific airlines (regional airlines would be contracted carriers such as Mesa, heavily region-focused airlines would be like Hawaiian Airlines).
+*Inactive airlines
+
+For this reason, we have decided to remove the following airlines:
+Remove: 
+*Endeavor Air (9E)
+*ExpressJet (EV)
+*Allegiant (G4)
+*Hawaiian Airlines (HA)
+*Envoy Air (MQ)
+*PSA Airlines (OH)
+*SkyWest Airlines (OO)
+*Virgin America (VX)
+*Mesa Airlines (YV)
+*Republic Airways (YX)
+
+Keep
+*American Airlines (AA)
+*Alaska Airlines (AS)
+*JetBlue (B6)
+*Delta (DL)
+*Frontier (F9)
+*Spirit (NK)
+*United Airlines (UA)
+*Southwest (WN)
+
+```{r}
+thanksgiving = thanksgiving %>% filter(OP_UNIQUE_CARRIER %in% c('AA','AS','B6','DL','F9','NK','UA','WN'))
+```
+
+
+```{r}
+by_year = thanksgiving %>% group_by(OP_UNIQUE_CARRIER,year) %>% summarize(delay = mean(ARR_DELAY_NEW,na.rm=TRUE))
+
+ggplot(by_year,aes(x=OP_UNIQUE_CARRIER,y=delay,fill=as.factor(year))) + 
+  geom_col(position=position_dodge2(preserve = "single",width=1)) +
+  scale_color_brewer(palette='Set3') +
+  theme_calc() +
+  xlab('Airline') +
+  ylab('Average Flight Delay') +
+  labs(fill = 'Year')
+```
+
+```{r}
+by_day = thanksgiving %>% filter(year==2018) %>% group_by(OP_UNIQUE_CARRIER,DAY_OF_WEEK) %>% summarize(delay = mean(ARR_DELAY_NEW,na.rm=TRUE))
+
+ggplot(by_day,aes(x=OP_UNIQUE_CARRIER,y=delay,fill=as.factor(DAY_OF_WEEK))) + 
+  geom_col(position=position_dodge2(preserve = "single",width=1)) +
+  scale_color_brewer(palette='Set3') +
+  theme_calc() +
+  xlab('Airline') +
+  ylab('Average Flight Delay') +
+  labs(fill = 'Day of Week') + 
+  ggtitle('What Was Happening In 2018?')
+```
+
+```{r}
+by_day = thanksgiving %>% filter(year!=2018) %>% group_by(OP_UNIQUE_CARRIER,DAY_OF_WEEK) %>% summarize(delay = mean(ARR_DELAY_NEW,na.rm=TRUE))
+
+ggplot(by_day,aes(x=OP_UNIQUE_CARRIER,y=delay,fill=as.factor(DAY_OF_WEEK))) + 
+  geom_col(position=position_dodge2(preserve = "single",width=1)) +
+  scale_color_brewer(palette='Set3') +
+  theme_calc() +
+  xlab('Airline') +
+  ylab('Average Flight Delay') +
+  labs(fill = 'Day of Week') + 
+  ggtitle('Flight Delays By Day 2015-2017')
+```
+
+```{r}
+by_year_sunday = thanksgiving %>% filter(DAY_OF_WEEK==7) %>% group_by(OP_UNIQUE_CARRIER,year) %>% summarize(delay = mean(ARR_DELAY_NEW,na.rm=TRUE))
+
+ggplot(by_year_sunday,aes(x=OP_UNIQUE_CARRIER,y=delay,fill=as.factor(year))) + 
+  geom_col(position=position_dodge2(preserve = "single",width=1)) +
+  scale_color_brewer(palette='Set3') +
+  theme_calc() +
+  xlab('Airline') +
+  ylab('Average Flight Delay') +
+  labs(fill = 'Year') + 
+  ggtitle('Sunday Flight Delays By Year')
+```
+
+```{r}
+sunday2018 = thanksgiving %>% filter(year == 2018,DAY_OF_WEEK==7) %>% group_by(ORIGIN) %>% summarize(cancellations = sum(CANCELLED,na.rm=TRUE)) %>% arrange(-cancellations)
+
+head(sunday2018,30)
+```
+
+We cannot easily attribute the delays in 2018 to any single factor (explain more). For this reason we will consider the extreme Sunday delays for some airlines in 2018 to be random variation, while noting the oddity.
+
 Now let's do a brief look into regionality, looking at the 15 states/territories with the worst delays.
 
 ```{r}
