@@ -3,6 +3,8 @@ Research into which airline has best OTP during Thanksgiving weekend
 
 # note on files
 .csv that are too large are zipped
+
+# note on years
 2014 not needed should ignore 
 
 # workflow
