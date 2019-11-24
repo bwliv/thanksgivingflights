@@ -1,0 +1,284 @@
+---
+author: 'Benjamin Livingston'
+title: "How Airline Delays Compare Before & During Thanksgiving"
+output: html_document
+
+---
+```{r, include=FALSE}
+knitr::opts_chunk$set(warning = FALSE, message = FALSE, echo = TRUE)
+```
+
+```{r}
+library(ggplot2)
+library(dplyr)
+library(ggthemes)
+library(tidyr)
+
+thanksgiving = read.csv('thanksgiving.csv')
+november = read.csv('november.csv')
+alldates = read.csv('alldates.csv')
+```
+
+```{r}
+thanksgiving = thanksgiving %>% mutate(OP_UNIQUE_CARRIER = recode(OP_UNIQUE_CARRIER, "9E" = "Endeavor Air",
+                                                                  "EV" = "ExpressJet",
+                                                                  "G4" = "Allegiant",
+                                                                  "HA" = "Hawaiian",
+                                                                  "MQ" = "Envoy",
+                                                                  "OH" = "PSA",
+                                                                  "OO" = "SkyWest",
+                                                                  "VX" = "Virgin America",
+                                                                  "YV" = "Mesa",
+                                                                  "YX" = "Republic",
+                                                                  "AA" = "American",
+                                                                  "AS" = "Alaska",
+                                                                  "B6" = "JetBlue",
+                                                                  "DL" = "Delta",
+                                                                  "F9" = "Frontier",
+                                                                  "NK" = "Spirit",
+                                                                  "UA" = "United",
+                                                                  "WN" = "Southwest"))
+
+alldates = alldates %>% mutate(OP_UNIQUE_CARRIER = recode(OP_UNIQUE_CARRIER, "9E" = "Endeavor Air",
+                                                                  "EV" = "ExpressJet",
+                                                                  "G4" = "Allegiant",
+                                                                  "HA" = "Hawaiian",
+                                                                  "MQ" = "Envoy",
+                                                                  "OH" = "PSA",
+                                                                  "OO" = "SkyWest",
+                                                                  "VX" = "Virgin America",
+                                                                  "YV" = "Mesa",
+                                                                  "YX" = "Republic",
+                                                                  "AA" = "American",
+                                                                  "AS" = "Alaska",
+                                                                  "B6" = "JetBlue",
+                                                                  "DL" = "Delta",
+                                                                  "F9" = "Frontier",
+                                                                  "NK" = "Spirit",
+                                                                  "UA" = "United",
+                                                                  "WN" = "Southwest"))
+
+november = november %>% mutate(OP_UNIQUE_CARRIER = recode(OP_UNIQUE_CARRIER, "9E" = "Endeavor Air",
+                                                                  "EV" = "ExpressJet",
+                                                                  "G4" = "Allegiant",
+                                                                  "HA" = "Hawaiian",
+                                                                  "MQ" = "Envoy",
+                                                                  "OH" = "PSA",
+                                                                  "OO" = "SkyWest",
+                                                                  "VX" = "Virgin America",
+                                                                  "YV" = "Mesa",
+                                                                  "YX" = "Republic",
+                                                                  "AA" = "American",
+                                                                  "AS" = "Alaska",
+                                                                  "B6" = "JetBlue",
+                                                                  "DL" = "Delta",
+                                                                  "F9" = "Frontier",
+                                                                  "NK" = "Spirit",
+                                                                  "UA" = "United",
+                                                                  "WN" = "Southwest"))
+
+color = scale_colour_manual(
+    values = c('American'='#787890','Alaska'='#8caa48','JetBlue'='#003876',
+               'Delta'='#C01933','Frontier'='#248168','Spirit'='#feea67',
+               'United'='#8099d0','Southwest'='#5e2e24'),
+    aesthetics = c("colour", "fill"))
+```
+
+```{r}
+thanksgiving = thanksgiving %>% filter(OP_UNIQUE_CARRIER %in% c('American','Alaska','JetBlue','Delta','Frontier','Spirit','United','Southwest'))
+
+november = november %>% filter(OP_UNIQUE_CARRIER %in% c('American','Alaska','JetBlue','Delta','Frontier','Spirit','United','Southwest'))
+
+alldates = alldates %>% filter(OP_UNIQUE_CARRIER %in% c('American','Alaska','JetBlue','Delta','Frontier','Spirit','United','Southwest'))
+```
+
+We will now answer a vital question: how has airline OTP during the Thanksgiving holiday compared to airline OTP outside of the Thanksgiving holiday since the mergers of the major US airlines?
+
+We will research this question by comparing the 20 days before the Thanksgiving travel rush to the 5 days of the Thanksgiving travel period, in order ensure that we stay in a season with similar weather and travel patterns. We note, however, that likely captured **some** early Thanksgiving travel (which can be equally or perhaps even moreso plagued by delays).
+
+We also share a caveat (which applies to all this research) that the four years since the recent major US airline mergers completed is a small sample size, and major weather events and airline disruptions could cause some skewness in this data. 
+
+That being said, let's compare Thanksgiving and pre-Thanksgiving.
+
+```{r}
+by_period_all = alldates %>% group_by(period) %>% summarize(delay = mean(ARR_DELAY_NEW,na.rm=TRUE))
+
+ggplot(by_period_all,aes(x=period,y=delay,fill=period)) + 
+  geom_col(position='dodge') +
+  theme_calc() + 
+  xlab('Period') +
+  ylab('Average Delay') +
+  ggtitle('Major Eight Airline Delays In November') + 
+  scale_colour_manual(
+    values = c('red','blue'),
+    aesthetics = c("colour", "fill"))  +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  theme(plot.subtitle = element_text(hjust = 0.5)) +
+  guides(fill=guide_legend(title="Period")) +
+  theme(legend.title = element_text(hjust = 0.5))
+```
+
+A stunner: over the past four years, airlines have actually gotten better at on-time performance during Thanksgiving. 
+
+There's an important caveat worth mentioning here: the data we are using considers any early flight to be simply "on-time" (and does not give it a negative delay value), as we believe that it makes the most sense to call a spade a spade and consider any flight that isn't late to be on time. 
+
+However, flights are typically early when all goes right, so it's possible that Thanksgiving causes a lot of shorter "delays" that result in flights being on-time instead of early, meaning Thanksgiving flights aren't really quicker. 
+
+Still though, with that caveat, our result stands: and at the very least, it seems evident that delays don't get worse during Thanksgiving (at least for flights that aren't cancelled or diverted, which we'll address later).
+
+Now let's examine how this trend plays out for different airlines.
+
+```{r}
+by_airline_n = alldates %>% group_by(OP_UNIQUE_CARRIER,period) %>% summarize(delay = mean(ARR_DELAY_NEW,na.rm=TRUE))
+
+ggplot(by_airline_n,aes(x=OP_UNIQUE_CARRIER,y=delay,fill=period)) + 
+  geom_col(position='dodge') +
+  theme_calc() + 
+  xlab('Airline') +
+  ylab('Average Delay') +
+  ggtitle('Airline Delays In November... Before & During Thanksgiving') + 
+  labs(subtitle = '20 Days Before Thanksgiving Holiday vs. Thanksgiving Holiday') +
+  scale_colour_manual(
+    values = c('red','blue'),
+    aesthetics = c("colour", "fill")) +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  theme(plot.subtitle = element_text(hjust = 0.5)) +
+  guides(fill=guide_legend(title="Period")) +
+  theme(legend.title = element_text(hjust = 0.5))
+```
+
+
+```{r}
+delay_c = alldates %>% 
+  group_by(OP_UNIQUE_CARRIER,period) %>% 
+  summarize(delay = mean(ARR_DELAY_NEW,na.rm=TRUE)) %>%
+  ungroup() %>%
+  mutate(delay_change = 100*(delay - lag(delay))/lag(delay)) %>%
+  filter(period=='Thanksgiving')
+
+ggplot(delay_c,aes(x=OP_UNIQUE_CARRIER,y=delay_change,fill=OP_UNIQUE_CARRIER)) +
+  geom_col(position='dodge') +
+  theme_calc() +
+  xlab('Airline') +
+  ylab('Percent Change In Average Delay') + 
+  ggtitle('Airline Delay Swings During Thanksgiving') +
+  labs(subtitle = '20 Days Before Thanksgiving Holiday vs. Thanksgiving Holiday') +
+  colors +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  theme(plot.subtitle = element_text(hjust = 0.5)) +
+  guides(fill=guide_legend(title="Airline")) +
+  theme(legend.title = element_text(hjust = 0.5))
+
+```
+
+All eight airlines see their on-time performance improve during Thanksgiving.
+
+Outside of that, the most evident (and strangest) trend here is that Spirit Airlines and Frontier Airlines - two ultra low-cost carriers with poor service reputations - have had a significantly shorter average flight delay during the Thanksgiving holiday than they did prior to the Thanksgiving holiday, particularly Spirit Airlines.
+
+This suggests that there is no need to avoid Spirit and Frontier during the Thanksgiving holiday. In fact, one could argue if there's any time to fly these airlines, it's Thanksgiving: their OTP has lagged much less during this peak travel period. United (the third-worst airline for OTP) also sees an improvement in performance during Thanksgiving.
+
+Perhaps Thanksgiving has a normalizing effect on these airlines. Frontier technically still has the worst Thanksgiving travel delays of any of these airlines, but they close the gap by a remarkable margin.
+
+So flight delays are shorter during Thanksgiving. Surprise!
+
+But... what about the flights that aren't delayed, but just get flat-out cancelled, and thus don't even don't have a delay value to factor in? 
+
+Let's take a look...
+
+```{r}
+cancellations = alldates %>% 
+  group_by(period) %>% 
+  summarize(cancelled= sum(CANCELLED,na.rm=TRUE)) %>%
+  mutate(divider = ifelse(period=='Thanksgiving',5,20)) %>%
+  mutate(cancelled_per_day = cancelled/divider)
+
+ggplot(cancellations,aes(x=period,y=cancelled_per_day,fill=period)) + 
+  geom_col(position='dodge') +
+  theme_calc() + 
+  xlab('') +
+  ylab('Cancellations') +
+  ggtitle('Major Eight Airline Cancellations Per Day In November') +
+  labs(subtitle = '20 Days Before Thanksgiving Holiday vs. Thanksgiving Holiday') +
+  scale_colour_manual(
+    values = c('red','blue'),
+    aesthetics = c("colour", "fill")) +
+    theme(plot.title = element_text(hjust = 0.5)) +
+    theme(plot.subtitle = element_text(hjust = 0.5)) +
+    guides(fill=guide_legend(title="Period")) +
+    theme(legend.title = element_text(hjust = 0.5))
+```
+
+We expected a rub here, but alas, cancellations drop as well during the Thanksgiving holiday. This further confirms our surprising result: at least over the last four years, traveling during Thanksgiving has been less delay- and cancellation-ridden than traveling before Thanksgiving.
+
+Next we take a look at which airlines stepped up their getting-off-the-ground game the most.
+
+```{r}
+cancellations = alldates %>% group_by(OP_UNIQUE_CARRIER,period) %>% summarize(cancelled= sum(CANCELLED,na.rm=TRUE)) %>%
+  mutate(divider = ifelse(period=='Thanksgiving',5,20)) %>%
+  mutate(cancelled_per_day = cancelled/divider)
+
+ggplot(cancellations,aes(x=OP_UNIQUE_CARRIER,y=cancelled_per_day,fill=period)) + 
+  geom_col(position='dodge') +
+  theme_calc() + 
+  xlab('Airline') +
+  ylab('Cancellations') +
+  ggtitle('Airline Cancellations Per Day In November') +
+  labs(subtitle = '20 Days Before Thanksgiving Holiday vs. Thanksgiving Holiday') +
+  scale_colour_manual(
+    values = c('red','blue'),
+    aesthetics = c("colour", "fill"))  +
+    theme(plot.title = element_text(hjust = 0.5)) +
+    theme(plot.subtitle = element_text(hjust = 0.5)) +
+    guides(fill=guide_legend(title="Period")) +
+    theme(legend.title = element_text(hjust = 0.5))
+```
+
+
+```{r}
+cancellations_c = alldates %>% 
+  group_by(OP_UNIQUE_CARRIER,period) %>% 
+  summarize(cancellations = sum(CANCELLED,na.rm=TRUE))%>%
+  mutate(divider = ifelse(period=='Thanksgiving',5,20)) %>%
+  mutate(cancelled_per_day = cancellations/divider) %>%
+  ungroup() %>%
+  mutate(cancellation_change =
+           100*(cancelled_per_day - lag(cancelled_per_day)) /
+           lag(cancelled_per_day)) %>%
+  filter(period=='Thanksgiving')
+
+ggplot(cancellations_c,aes(x=OP_UNIQUE_CARRIER,y=cancellation_change,fill=OP_UNIQUE_CARRIER)) +
+  geom_col(position='dodge') +
+  theme_calc() +
+  xlab('Airline') +
+  ylab('Percent Change In Number Of Cancellations Per Day') + 
+  ggtitle('Airline Cancellation Swings During Thanksgiving') +
+  labs(subtitle='Pre-Thanksgiving To Thanksgiving Cancellations Per Day Change') +
+  colors +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  theme(plot.subtitle = element_text(hjust = 0.5)) +
+  guides(fill=guide_legend(title="Airline")) +
+  theme(legend.title = element_text(hjust = 0.5))
+
+```
+
+These differences appear to be nothing more than random variation, and we'll explain why.
+
+The swing for JetBlue is massive - it went from 18.4 flights cancelled per day before the Thanksgiving holiday to 2.0 flights cancelled per day during the holiday. Such a wild swing doesn't make logical sense. Unless JetBlue invested massive resources in avoiding delays during this period (Which is certainly possible), it's difficult to imagine what could have caused such a reversal.
+
+This suggests that cancellations are high-variation, "luck of the draw" (or more aptly put, "lack of luck of the draw") events, and measuring their swings is probably a fool's errand.
+
+That being said, JetBlue has done an exceptionally good job of getting their flights in the air over the last four Thanksgiving holidays.
+
+It's also worth noting that Southwest seems to have had extreme cancellation problems during the last four Novembers, but performed better during the holiday than before the holiday period.
+
+Most airlines appeared to get a bit better at getting their flights in the air, except Delta, which was the only airline out of the eight to have more cancellations during the Thanksgiving holiday.
+
+
+
+Putting the delay and cancellation data together, it's clear that the large US airlines have performed better during Thanksgiving than they did during the 20 days before Thanksgiving over the last four years.
+
+
+
+
+
+
