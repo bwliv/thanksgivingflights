@@ -76,12 +76,6 @@ november = november %>% mutate(OP_UNIQUE_CARRIER = recode(OP_UNIQUE_CARRIER, "9E
                                                                   "NK" = "Spirit",
                                                                   "UA" = "United",
                                                                   "WN" = "Southwest"))
-
-color = scale_colour_manual(
-    values = c('American'='#787890','Alaska'='#8caa48','JetBlue'='#003876',
-               'Delta'='#C01933','Frontier'='#248168','Spirit'='#feea67',
-               'United'='#8099d0','Southwest'='#5e2e24'),
-    aesthetics = c("colour", "fill"))
 ```
 
 ```{r}
@@ -163,7 +157,11 @@ ggplot(delay_c,aes(x=OP_UNIQUE_CARRIER,y=delay_change,fill=OP_UNIQUE_CARRIER)) +
   ylab('Percent Change In Average Delay') + 
   ggtitle('Airline Delay Swings During Thanksgiving') +
   labs(subtitle = '20 Days Before Thanksgiving Holiday vs. Thanksgiving Holiday') +
-  colors +
+  scale_colour_manual(
+    values = c('American'='#787890','Alaska'='#8caa48','JetBlue'='#003876',
+               'Delta'='#C01933','Frontier'='#248168','Spirit'='#feea67',
+               'United'='#8099d0','Southwest'='#5e2e24'),
+    aesthetics = c("colour", "fill")) +
   theme(plot.title = element_text(hjust = 0.5)) +
   theme(plot.subtitle = element_text(hjust = 0.5)) +
   guides(fill=guide_legend(title="Airline")) +
@@ -253,7 +251,11 @@ ggplot(cancellations_c,aes(x=OP_UNIQUE_CARRIER,y=cancellation_change,fill=OP_UNI
   ylab('Percent Change In Number Of Cancellations Per Day') + 
   ggtitle('Airline Cancellation Swings During Thanksgiving') +
   labs(subtitle='Pre-Thanksgiving To Thanksgiving Cancellations Per Day Change') +
-  colors +
+  scale_colour_manual(
+    values = c('American'='#787890','Alaska'='#8caa48','JetBlue'='#003876',
+               'Delta'='#C01933','Frontier'='#248168','Spirit'='#feea67',
+               'United'='#8099d0','Southwest'='#5e2e24'),
+    aesthetics = c("colour", "fill")) +
   theme(plot.title = element_text(hjust = 0.5)) +
   theme(plot.subtitle = element_text(hjust = 0.5)) +
   guides(fill=guide_legend(title="Airline")) +
