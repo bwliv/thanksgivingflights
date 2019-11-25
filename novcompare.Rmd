@@ -204,6 +204,31 @@ ggplot(by_airline_30,aes(x=OP_UNIQUE_CARRIER,y=delay,fill=period)) +
 
 It seems that long delays are a fairly random event across all airlines and dates, so not much to add there.
 
+What about *really* long delays though? Which airlines have the most of those? 
+
+```{r}
+ggplot(alldates) +
+  geom_boxplot(aes(x = OP_UNIQUE_CARRIER, y = ARR_DELAY_NEW)) +
+  coord_flip() +
+  theme_calc() +
+  xlab('Airline') +
+  ylab('Distribution of Delays') + 
+  ggtitle('Long Delays During Thanksgiving') +
+  labs(subtitle = '20 Days Before Thanksgiving Holiday vs. Thanksgiving Holiday') +
+  scale_colour_manual(
+    values = c('American'='#787890','Alaska'='#8caa48','JetBlue'='#003876',
+               'Delta'='#C01933','Frontier'='#248168','Spirit'='#feea67',
+               'United'='#8099d0','Southwest'='#5e2e24'),
+    aesthetics = c("colour", "fill")) +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  theme(plot.subtitle = element_text(hjust = 0.5)) +
+  guides(fill=guide_legend(title="Airline")) +
+  theme(legend.title = element_text(hjust = 0.5)) +
+  facet_wrap(~period)
+```
+
+The airlines prone to extreme delays appear to have stayed the same before and during the Thanksgiving holiday. 
+
 But now... what about the flights that aren't delayed, but just get flat-out cancelled, and thus don't even don't have a delay value to factor in? 
 
 Let's take a look.
