@@ -107,9 +107,8 @@ ggplot(by_period_all,aes(x=period,y=delay,fill=period)) +
     values = c('red','blue'),
     aesthetics = c("colour", "fill"))  +
   theme(plot.title = element_text(hjust = 0.5)) +
-  theme(plot.subtitle = element_text(hjust = 0.5)) +
-  guides(fill=guide_legend(title="Period")) +
-  theme(legend.title = element_text(hjust = 0.5))
+  theme(plot.subtitle = element_text(hjust = 0.5)) + 
+  theme(legend.position = "none")
 ```
 
 A stunner: over the past four years, airlines have actually gotten better at on-time performance during Thanksgiving. 
@@ -191,7 +190,7 @@ ggplot(by_airline_30,aes(x=OP_UNIQUE_CARRIER,y=delay,fill=period)) +
   theme_calc() + 
   xlab('Airline') +
   ylab('Average Delay') +
-  ggtitle('Airline Delays In November... Before & During Thanksgiving') + 
+  ggtitle('Delays of Over 30 Minutes') + 
   labs(subtitle = '20 Days Before Thanksgiving Holiday vs. Thanksgiving Holiday') +
   scale_colour_manual(
     values = c('red','blue'),
@@ -211,9 +210,9 @@ ggplot(alldates) +
   geom_boxplot(aes(x = OP_UNIQUE_CARRIER, y = ARR_DELAY_NEW)) +
   coord_flip() +
   theme_calc() +
-  xlab('Airline') +
-  ylab('Distribution of Delays') + 
-  ggtitle('Long Delays During Thanksgiving') +
+  xlab('') +
+  ylab('') + 
+  ggtitle('Long Airline Delays During November') +
   labs(subtitle = '20 Days Before Thanksgiving Holiday vs. Thanksgiving Holiday') +
   scale_colour_manual(
     values = c('American'='#787890','Alaska'='#8caa48','JetBlue'='#003876',
@@ -224,6 +223,24 @@ ggplot(alldates) +
   theme(plot.subtitle = element_text(hjust = 0.5)) +
   guides(fill=guide_legend(title="Airline")) +
   theme(legend.title = element_text(hjust = 0.5)) +
+  facet_wrap(~period)
+```
+
+```{r}
+ggplot(alldates) +
+  geom_boxplot(aes(x = period,y = ARR_DELAY_NEW,fill=period)) +
+  coord_flip() +
+  theme_calc() +
+  xlab('') +
+  ylab('') + 
+  ggtitle('Long Airline Delays During November') +
+  labs(subtitle = '20 Days Before Thanksgiving Holiday vs. Thanksgiving Holiday') +
+  scale_colour_manual(
+    values = c('red','blue'),
+    aesthetics = c("colour", "fill")) +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  theme(plot.subtitle = element_text(hjust = 0.5)) +
+  theme(legend.position = "none") +
   facet_wrap(~period)
 ```
 
@@ -252,8 +269,8 @@ ggplot(cancellations,aes(x=period,y=cancelled_per_day,fill=period)) +
     aesthetics = c("colour", "fill")) +
     theme(plot.title = element_text(hjust = 0.5)) +
     theme(plot.subtitle = element_text(hjust = 0.5)) +
-    guides(fill=guide_legend(title="Period")) +
-    theme(legend.title = element_text(hjust = 0.5))
+    guides(fill=guide_legend(title="Period")) + 
+    theme(legend.position = "none")
 ```
 
 We expected a rub here, but alas, cancellations drop as well during the Thanksgiving holiday. This further confirms our surprising result: at least over the last four years, traveling during Thanksgiving has been less delay- and cancellation-ridden than traveling before Thanksgiving.
@@ -325,7 +342,16 @@ It's also worth noting that Southwest seems to have had extreme cancellation pro
 
 Most airlines appeared to get a bit better at getting their flights in the air, except Delta, which was the only airline out of the eight to have more cancellations during the Thanksgiving holiday.
 
+```{r}
+library(vcd)
+cancellations_table = alldates %>% 
+  group_by(OP_UNIQUE_CARRIER,period) %>% 
+  summarize(cancellations = sum(CANCELLED,na.rm=TRUE))%>%
+  mutate(divider = ifelse(period=='Thanksgiving',5,20)) %>%
+  mutate(count = cancellations/divider) 
 
+mosaic(~ OP_UNIQUE_CARRIER + period ,data=cancellations_table)
+```
 
 Putting the delay and cancellation data together, it's clear that the large US airlines have performed better during Thanksgiving than they did during the 20 days before Thanksgiving over the last four years.
 
