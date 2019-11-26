@@ -254,7 +254,7 @@ Let's take a look.
 cancellations = alldates %>% 
   group_by(period) %>% 
   summarize(cancelled= sum(CANCELLED,na.rm=TRUE)) %>%
-  mutate(divider = ifelse(period=='Thanksgiving',5,20)) %>%
+  mutate(divider = ifelse(period=='Thanksgiving',20,80)) %>%
   mutate(cancelled_per_day = cancelled/divider)
 
 ggplot(cancellations,aes(x=period,y=cancelled_per_day,fill=period)) + 
@@ -279,7 +279,7 @@ Next we take a look at which airlines stepped up their getting-off-the-ground ga
 
 ```{r}
 cancellations = alldates %>% group_by(OP_UNIQUE_CARRIER,period) %>% summarize(cancelled= sum(CANCELLED,na.rm=TRUE)) %>%
-  mutate(divider = ifelse(period=='Thanksgiving',5,20)) %>%
+  mutate(divider = ifelse(period=='Thanksgiving',20,80)) %>%
   mutate(cancelled_per_day = cancelled/divider)
 
 ggplot(cancellations,aes(x=OP_UNIQUE_CARRIER,y=cancelled_per_day,fill=period)) + 
@@ -303,7 +303,7 @@ ggplot(cancellations,aes(x=OP_UNIQUE_CARRIER,y=cancelled_per_day,fill=period)) +
 cancellations_c = alldates %>% 
   group_by(OP_UNIQUE_CARRIER,period) %>% 
   summarize(cancellations = sum(CANCELLED,na.rm=TRUE))%>%
-  mutate(divider = ifelse(period=='Thanksgiving',5,20)) %>%
+  mutate(divider = ifelse(period=='Thanksgiving',20,80)) %>%
   mutate(cancelled_per_day = cancellations/divider) %>%
   ungroup() %>%
   mutate(cancellation_change =
@@ -439,7 +439,7 @@ g + coord_cartesian(ylim=c(0,20))
 bydatesgrouped4 = bydates %>%
   group_by(nday) %>%
   summarize(cancellations = sum(CANCELLED,na.rm=TRUE)) %>%
-  mutate(divider = ifelse(nday>20,5,20)) %>%
+  mutate(divider = ifelse(nday>20,20,80)) %>%
   mutate(cancelled_per_day = cancellations/divider)
 
 ggplot(bydatesgrouped4,aes(x=nday,y=cancelled_per_day),) +
