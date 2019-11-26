@@ -342,21 +342,127 @@ It's also worth noting that Southwest seems to have had extreme cancellation pro
 
 Most airlines appeared to get a bit better at getting their flights in the air, except Delta, which was the only airline out of the eight to have more cancellations during the Thanksgiving holiday.
 
-```{r}
-library(vcd)
-cancellations_table = alldates %>% 
-  group_by(OP_UNIQUE_CARRIER,period) %>% 
-  summarize(cancellations = sum(CANCELLED,na.rm=TRUE))%>%
-  mutate(divider = ifelse(period=='Thanksgiving',5,20)) %>%
-  mutate(count = cancellations/divider) 
+So overall, it certainly seems that travelling before Thanksgiving yields better results than traveling during Thanksgiving, a caveat that we mentioned earlier.
 
-mosaic(~ OP_UNIQUE_CARRIER + period ,data=cancellations_table)
+So let's see- if we examine the five days of the Thanksgiving travel rush and the 20 days before, do we see a peak in delays at any particular point? Could it be that the worst delays happen 3-5 days before Thanksgiving (i.e. the weekend before plus Monday and Tuesday), rather than during the traditional travel rush?
+
+Let's see what the graphs say. 
+
+```{r}
+bydates = alldates %>% 
+  mutate(nday = mday(FL_DATE))
+
+bydates$nday =
+  ifelse(bydates$year == 2015, bydates$nday - 4,
+  ifelse(bydates$year == 2016, bydates$nday - 2,
+  ifelse(bydates$year == 2017, bydates$nday - 1,bydates$nday)))
+
+bydatesgrouped = bydates %>%
+  group_by(nday,year) %>%
+  summarize(avgdelay = mean(ARR_DELAY_NEW,na.rm=TRUE))
+
+ggplot(bydatesgrouped,aes(x=nday,y=avgdelay,color=as.factor(year)),) +
+  geom_line(width=2) +
+  geom_point() +
+  geom_vline(xintercept=20.5) +
+  annotate("text", label = "Thanksgiving Holiday", x = 23.4, y = 22, size = 3, colour = "black") +
+  theme_calc() +
+  xlab('Number Day In 25 Day Period Ending With Sunday After Thanksgiving') +
+  ylab('Average Delay') + 
+  ggtitle('How Average Major Airline Delays Evolve During November') +
+  labs(subtitle='20 Days Before Thanksgiving Travel Period + Five Days During Thanksgiving Holiday') +
+  scale_colour_manual(
+    values = c('red','blue','darkgreen','orange'),
+    aesthetics = c("colour", "fill")) +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  theme(plot.subtitle = element_text(hjust = 0.5)) +
+  guides(color=guide_legend(title="Year")) +
+  theme(legend.title = element_text(hjust = 0.5)) 
 ```
 
-Putting the delay and cancellation data together, it's clear that the large US airlines have performed better during Thanksgiving than they did during the 20 days before Thanksgiving over the last four years.
+```{r}
+bydatesgrouped2 = bydates %>%
+  group_by(nday) %>%
+  summarize(avgdelay = mean(ARR_DELAY_NEW,na.rm=TRUE))
+
+ggplot(bydatesgrouped2,aes(x=nday,y=avgdelay)) +
+  geom_line(width=2) +
+  geom_point() +
+  geom_vline(xintercept=20.5) +
+  annotate("text", label = "Thanksgiving Holiday", x = 23.4, y = 22, size = 3, colour = "black") +
+  theme_calc() +
+  xlab('Number Day In 25 Day Period Ending With Sunday After Thanksgiving') +
+  ylab('Average Delay') + 
+  ggtitle('How Average Major Airline Delays Evolve During November') +
+  labs(subtitle='20 Days Before Thanksgiving Travel Period + Five Days During Thanksgiving Holiday') +
+  scale_colour_manual(
+    values = c('red','blue','darkgreen','orange'),
+    aesthetics = c("colour", "fill")) +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  theme(plot.subtitle = element_text(hjust = 0.5))
+```
 
 
+```{r}
+bydatesgrouped3 = bydates %>%
+  group_by(nday,year) %>%
+  summarize(cancellations = sum(CANCELLED,na.rm=TRUE)) %>%
+  mutate(divider = ifelse(nday>20,5,20)) %>%
+  mutate(cancelled_per_day = cancellations/divider)
 
+g = ggplot(bydatesgrouped3,aes(x=nday,y=cancelled_per_day,color=as.factor(year)),) +
+  geom_line(width=2) +
+  geom_point() +
+  geom_vline(xintercept=20.5) +
+  annotate("text", label = "Thanksgiving Holiday", x = 23.4, y = -8, size = 3, colour = "black") +
+  theme_calc() +
+  xlab('Number Day In 25 Day Period Ending With Sunday After Thanksgiving') +
+  ylab('Cancellations Per Day') + 
+  ggtitle('How Average Major Airline Cancellations Evolve During November, 2015-2018') +
+  labs(subtitle='20 Days Before Thanksgiving Travel Period + Five Days During Thanksgiving Holiday') +
+  scale_colour_manual(
+    values = c('red','blue','darkgreen','orange'),
+    aesthetics = c("colour", "fill")) +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  theme(plot.subtitle = element_text(hjust = 0.5)) +
+  guides(color=guide_legend(title="Year")) +
+  theme(legend.title = element_text(hjust = 0.5)) 
 
+g
+```
+
+```{r}
+g + coord_cartesian(ylim=c(0,20))
+```
+
+```{r}
+bydatesgrouped4 = bydates %>%
+  group_by(nday) %>%
+  summarize(cancellations = sum(CANCELLED,na.rm=TRUE)) %>%
+  mutate(divider = ifelse(nday>20,5,20)) %>%
+  mutate(cancelled_per_day = cancellations/divider)
+
+ggplot(bydatesgrouped4,aes(x=nday,y=cancelled_per_day),) +
+  geom_line(width=2) +
+  geom_point() +
+  geom_vline(xintercept=20.5) +
+  annotate("text", label = "Thanksgiving Holiday", x = 23.4, y = -8, size = 3, colour = "black") +
+  theme_calc() +
+  xlab('Day In 25 Day Period Ending With Sunday After Thanksgiving') +
+  ylab('Cancellations Per Day') + 
+  ggtitle('How Average Major Airline Cancellations Evolve During November, 2015-2018') +
+  labs(subtitle='20 Days Before Thanksgiving Travel Period + Five Days During Thanksgiving Holiday') +
+  scale_colour_manual(
+    values = c('red','blue','darkgreen','orange'),
+    aesthetics = c("colour", "fill")) +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  theme(plot.subtitle = element_text(hjust = 0.5)) 
+```
+
+These graphs yield an unexpected result - it seems that, generally, the Wednesday before Thanksgiving (day 21) isn't nearly as bad of a travel day as the weekend before Thanksgiving, which appears to be a terrible time for travel. The weekend after Thanksgiving is messy too, but is clearly affected by a disastrous Thanksgiving Sunday 2018 (this may have been related to a blizzard that struck the middle of the country that weekend, although we can't say that for sure).
+
+This suggests that leaving early for the Thanksgiving holiday doesn't make you less prone to delays, while coming home a day or two early could make your flight more reliable.
+
+In conclusion, the days around Thanksgiving are relatively calm - it's the weekends before and after Thanksgiving that cause the most problems for travelers.
 
 

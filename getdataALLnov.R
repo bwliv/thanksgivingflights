@@ -13,8 +13,8 @@ file2018$FL_DATE = ymd(file2018$FL_DATE)
 
 #get thanksgiving holiday and 20 days before thanksgiving holiday
 file2015 = file2015 %>% filter(FL_DATE <= ymd('2015-11-29')) %>% filter(FL_DATE >= ymd('2015-11-05')) 
-file2016 = file2016 %>% filter(FL_DATE <= ymd('2016-11-27')) %>% filter(FL_DATE >= ymd('2015-11-03'))
-file2017 = file2017 %>% filter(FL_DATE <= ymd('2017-11-26')) %>% filter(FL_DATE >= ymd('2015-11-02'))
+file2016 = file2016 %>% filter(FL_DATE <= ymd('2016-11-27')) %>% filter(FL_DATE >= ymd('2016-11-03'))
+file2017 = file2017 %>% filter(FL_DATE <= ymd('2017-11-26')) %>% filter(FL_DATE >= ymd('2017-11-02'))
 file2018 = file2018 %>% filter(FL_DATE <= ymd('2018-11-25'))
 
 file2015 = mutate(file2015,period = ifelse(FL_DATE >= ymd('2015-11-25'),'Thanksgiving','Non-Thankgiving'))
