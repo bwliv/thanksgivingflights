@@ -130,6 +130,29 @@ Keep
 *Southwest (WN)
 
 ```{r}
+thanksgiving = thanksgiving %>% mutate(OP_UNIQUE_CARRIER = recode(OP_UNIQUE_CARRIER, "9E" = "Endeavor Air",
+                                                                  "EV" = "ExpressJet",
+                                                                  "G4" = "Allegiant",
+                                                                  "HA" = "Hawaiian",
+                                                                  "MQ" = "Envoy",
+                                                                  "OH" = "PSA",
+                                                                  "OO" = "SkyWest",
+                                                                  "VX" = "Virgin America",
+                                                                  "YV" = "Mesa",
+                                                                  "YX" = "Republic",
+                                                                  "AA" = "American",
+                                                                  "AS" = "Alaska",
+                                                                  "B6" = "JetBlue",
+                                                                  "DL" = "Delta",
+                                                                  "F9" = "Frontier",
+                                                                  "NK" = "Spirit",
+                                                                  "UA" = "United",
+                                                                  "WN" = "Southwest"))
+```
+
+
+
+```{r}
 thanksgiving = thanksgiving %>% filter(OP_UNIQUE_CARRIER %in% c('AA','AS','B6','DL','F9','NK','UA','WN'))
 ```
 
