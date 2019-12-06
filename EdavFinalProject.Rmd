@@ -13,8 +13,6 @@ knitr::opts_chunk$set(echo = TRUE)
 # FULL GROUP PART
 #############
 
-
-
 # INITIAL OBSERVATIONS
 
 [10 points]
@@ -23,76 +21,38 @@ knitr::opts_chunk$set(echo = TRUE)
 library(ggplot2)
 library(dplyr)
 library(ggthemes)
+library(forcats)
+library(ggpubr)
+library(lubridate)
+library(tidyr)
+library(stringr)
+library(reshape2)
 
 thanksgiving = read.csv('thanksgiving.csv')
+alldates = read.csv('alldates.csv')
 ```
-
-```{r}
-by_airline = thanksgiving %>% group_by(OP_UNIQUE_CARRIER) %>% summarize(delay = mean(ARR_DELAY_NEW,na.rm=TRUE))
-
-ggplot(by_airline,aes(x=OP_UNIQUE_CARRIER,y=delay)) + 
-  geom_col(position='dodge') +
-  theme_calc() + 
-  xlab('Airline') +
-  ylab('Average Delay')
-```
-
-Ultra low-cost carrier Allegiant (G4) leads the pack, which isn't surprising considering its reputation (but wait, more on this in a second!). Regional airline Mesa Airlines comes next. Hawaiian Airlines has the fewest delays of any airline. 
-
-It is clear that focusing on large carriers will make the most sense for our purposes, since consumers are typically unfamiliar with regional airlines that fly under either a single mainline carrier's brand or multiple brands, and those airlines tend to be available for only a small set of routes.
-
-Among the three major legacy carriers, Delta (DL) has the fewest delays, followed by American Airlines (AA), and United (UA) performs by far the worst. Southwest (WN) performs a little better than American Airlines, and Alaska Airlines (AS) performs a little worse than American Airlines.
-
-Does this change by year, though? How much does our data vary by year?
-```{r}
-by_year = thanksgiving %>% group_by(OP_UNIQUE_CARRIER,year) %>% summarize(delay = mean(ARR_DELAY_NEW,na.rm=TRUE))
-
-ggplot(by_year,aes(x=OP_UNIQUE_CARRIER,y=delay,fill=as.factor(year))) + 
-  geom_col(position=position_dodge2(preserve = "single",width=1)) +
-  scale_color_brewer(palette='Set3') +
-  theme_calc() +
-  xlab('Airline') +
-  ylab('Average Flight Delay') +
-  labs(fill = 'Year')
-```
-
-This graph isn't particularly pretty, but it does the job for our EDA - it shows that major airline OTP stayed fairly steady from 2015 to 2017, and then got much worse in 2018 across the board - perhaps due to the blizzard that occured in part of the country during Thanksgiving 2018. We may need to separate out 2018 when we do our analysis (we will investigate).
-
-This also provides a curious revelation: Allegiant did not have any flights during the Thanksgiving holiday before 2018. No wonder its on time performance was so terrible - it only flew on Thanksgiving during the year when delays were by far the worst.
-
-Again, this furthers our conviction that focusing on large, national, major mainline airlines that flew in all four years will make the most sense for our purposes.
-
-We will apply the following criteria for removing airlines:  
-
-*Must have flown flights during Thanksgiving all four years
-*Regional or heavily region-specific airlines (regional airlines would be contracted carriers such as Mesa, heavily region-focused airlines would be like Hawaiian Airlines).
-*Inactive airlines
-
-For this reason, we have decided to remove the following airlines:
-Remove: 
-*Endeavor Air (9E)
-*ExpressJet (EV)
-*Allegiant (G4)
-*Hawaiian Airlines (HA)
-*Envoy Air (MQ)
-*PSA Airlines (OH)
-*SkyWest Airlines (OO)
-*Virgin America (VX)
-*Mesa Airlines (YV)
-*Republic Airways (YX)
-
-Keep
-*American Airlines (AA)
-*Alaska Airlines (AS)
-*JetBlue (B6)
-*Delta (DL)
-*Frontier (F9)
-*Spirit (NK)
-*United Airlines (UA)
-*Southwest (WN)
 
 ```{r}
 thanksgiving = thanksgiving %>% mutate(OP_UNIQUE_CARRIER = recode(OP_UNIQUE_CARRIER, "9E" = "Endeavor Air",
+                                                                  "EV" = "ExpressJet",
+                                                                  "G4" = "Allegiant",
+                                                                  "HA" = "Hawaiian",
+                                                                  "MQ" = "Envoy",
+                                                                  "OH" = "PSA",
+                                                                  "OO" = "SkyWest",
+                                                                  "VX" = "Virgin America",
+                                                                  "YV" = "Mesa",
+                                                                  "YX" = "Republic",
+                                                                  "AA" = "American",
+                                                                  "AS" = "Alaska",
+                                                                  "B6" = "JetBlue",
+                                                                  "DL" = "Delta",
+                                                                  "F9" = "Frontier",
+                                                                  "NK" = "Spirit",
+                                                                  "UA" = "United",
+                                                                  "WN" = "Southwest"))
+
+alldates = alldates %>% mutate(OP_UNIQUE_CARRIER = recode(OP_UNIQUE_CARRIER, "9E" = "Endeavor Air",
                                                                   "EV" = "ExpressJet",
                                                                   "G4" = "Allegiant",
                                                                   "HA" = "Hawaiian",
@@ -115,10 +75,23 @@ thanksgiving = thanksgiving %>% mutate(OP_UNIQUE_CARRIER = recode(OP_UNIQUE_CARR
 
 
 ```{r}
-thanksgiving = thanksgiving %>% filter(OP_UNIQUE_CARRIER %in% c('AA','AS','B6','DL','F9','NK','UA','WN'))
+by_airline = thanksgiving %>% group_by(OP_UNIQUE_CARRIER) %>% summarize(delay = mean(ARR_DELAY_NEW,na.rm=TRUE))
+
+ggplot(by_airline,aes(x=OP_UNIQUE_CARRIER,y=delay)) + 
+  geom_col(position='dodge') +
+  theme_calc() + 
+  xlab('Airline') +
+  ylab('Average Delay') +
+  coord_flip()
 ```
 
+Ultra low-cost carrier Allegiant (G4) leads the pack in Thanksgivng delays, which isn't surprising considering its reputation (but wait, more on this in a second!). Regional airline Mesa Airlines comes next. Hawaiian Airlines has the fewest delays of any airline. 
 
+It is clear that focusing on large carriers will make the most sense for our purposes, since consumers are typically unfamiliar with regional airlines that fly under either a single mainline carrier's brand or multiple brands, and those airlines tend to be available for only a small set of routes.
+
+Among the three major legacy carriers, Delta (DL) has the fewest delays, followed by American Airlines (AA), and United (UA) performs by far the worst. Southwest (WN) performs a little better than American Airlines, and Alaska Airlines (AS) performs a little worse than American Airlines.
+
+Does this change by year, though? How much does our data vary by year?
 ```{r}
 by_year = thanksgiving %>% group_by(OP_UNIQUE_CARRIER,year) %>% summarize(delay = mean(ARR_DELAY_NEW,na.rm=TRUE))
 
@@ -128,106 +101,59 @@ ggplot(by_year,aes(x=OP_UNIQUE_CARRIER,y=delay,fill=as.factor(year))) +
   theme_calc() +
   xlab('Airline') +
   ylab('Average Flight Delay') +
-  labs(fill = 'Year')
+  labs(fill = 'Year') +
+  coord_flip()
 ```
+
+This graph isn't particularly pretty, but it does the job for our EDA - it shows that major airline OTP stayed fairly steady from 2015 to 2017, and then got much worse in 2018 across the board - perhaps due to the blizzard that occured in part of the country during Thanksgiving 2018. We may need to consider whether 2018 should be included in this analysis (we will examine this later).
+
+This also provides a curious revelation: Allegiant did not have any flights during the Thanksgiving holiday before 2018. No wonder its on time performance was so terrible - it only flew on Thanksgiving during the year when delays were by far the worst.
+
+Again, this furthers our conviction that focusing on large, national, major mainline airlines that flew in all four years will make the most sense for our purposes.
+
+We will apply the following criteria for removing airlines:  
+
+*Must have flown flights during Thanksgiving all four years
+*Regional or heavily region-specific airlines (regional airlines would be contracted carriers such as Mesa, heavily region-focused airlines would be like Hawaiian Airlines).
+*Inactive airlines
+
+For this reason, we have decided to remove the following airlines:
+*Endeavor Air (9E)
+*ExpressJet (EV)
+*Allegiant (G4)
+*Hawaiian Airlines (HA)
+*Envoy Air (MQ)
+*PSA Airlines (OH)
+*SkyWest Airlines (OO)
+*Virgin America (VX)
+*Mesa Airlines (YV)
+*Republic Airways (YX)
+
+Which leaves us with the following airlines:
+*American Airlines (AA)
+*Alaska Airlines (AS)
+*JetBlue (B6)
+*Delta (DL)
+*Frontier (F9)
+*Spirit (NK)
+*United Airlines (UA)
+*Southwest (WN)
+
 
 ```{r}
-by_day = thanksgiving %>% filter(year==2018) %>% group_by(OP_UNIQUE_CARRIER,DAY_OF_WEEK) %>% summarize(delay = mean(ARR_DELAY_NEW,na.rm=TRUE))
+thanksgiving = thanksgiving %>% filter(OP_UNIQUE_CARRIER %in% c('American','Alaska','JetBlue','Delta','Frontier','Spirit','United','Southwest'))
 
-ggplot(by_day,aes(x=OP_UNIQUE_CARRIER,y=delay,fill=as.factor(DAY_OF_WEEK))) + 
-  geom_col(position=position_dodge2(preserve = "single",width=1)) +
-  scale_color_brewer(palette='Set3') +
-  theme_calc() +
-  xlab('Airline') +
-  ylab('Average Flight Delay') +
-  labs(fill = 'Day of Week') + 
-  ggtitle('What Was Happening In 2018?')
+alldates = alldates %>% filter(OP_UNIQUE_CARRIER %in% c('American','Alaska','JetBlue','Delta','Frontier','Spirit','United','Southwest')) 
 ```
-
-```{r}
-by_day = thanksgiving %>% filter(year!=2018) %>% group_by(OP_UNIQUE_CARRIER,DAY_OF_WEEK) %>% summarize(delay = mean(ARR_DELAY_NEW,na.rm=TRUE))
-
-ggplot(by_day,aes(x=OP_UNIQUE_CARRIER,y=delay,fill=as.factor(DAY_OF_WEEK))) + 
-  geom_col(position=position_dodge2(preserve = "single",width=1)) +
-  scale_color_brewer(palette='Set3') +
-  theme_calc() +
-  xlab('Airline') +
-  ylab('Average Flight Delay') +
-  labs(fill = 'Day of Week') + 
-  ggtitle('Flight Delays By Day 2015-2017')
-```
-
-```{r}
-by_year_sunday = thanksgiving %>% filter(DAY_OF_WEEK==7) %>% group_by(OP_UNIQUE_CARRIER,year) %>% summarize(delay = mean(ARR_DELAY_NEW,na.rm=TRUE))
-
-ggplot(by_year_sunday,aes(x=OP_UNIQUE_CARRIER,y=delay,fill=as.factor(year))) + 
-  geom_col(position=position_dodge2(preserve = "single",width=1)) +
-  scale_color_brewer(palette='Set3') +
-  theme_calc() +
-  xlab('Airline') +
-  ylab('Average Flight Delay') +
-  labs(fill = 'Year') + 
-  ggtitle('Sunday Flight Delays By Year')
-```
-
-```{r}
-sunday2018 = thanksgiving %>% filter(year == 2018,DAY_OF_WEEK==7) %>% group_by(ORIGIN) %>% summarize(cancellations = sum(CANCELLED,na.rm=TRUE)) %>% arrange(-cancellations)
-
-head(sunday2018,30)
-```
-
-We cannot easily attribute the delays in 2018 to any single factor (explain more). For this reason we will consider the extreme Sunday delays for some airlines in 2018 to be random variation, while noting the oddity.
-
-Now let's do a brief look into regionality, looking at the 15 states/territories with the worst delays.
-
-```{r}
-library(forcats)
-by_area = thanksgiving %>% group_by(ORIGIN_STATE_ABR) %>% summarize(average_delay = mean(DEP_DELAY_NEW,na.rm=TRUE),number_of_flights=n()) %>% arrange(-average_delay) %>% head(15)
-
-ggplot(by_area) +
-  geom_col(aes(x=fct_reorder(ORIGIN_STATE_ABR,average_delay),y=average_delay)) +
-  theme_calc() +
-  coord_flip() + 
-  xlab('State') +
-  ylab('Average Delay')
-```
-
-The Pacific Islands lead the pack, but there are barely any flights there. Many small states have the worst OTP, which may be due to high variance.
-
-Let's try only taking states with more than 1000 flights. 
-
-```{r}
-by_area = thanksgiving %>% group_by(ORIGIN_STATE_ABR) %>% summarize(average_delay = mean(DEP_DELAY_NEW,na.rm=TRUE),number_of_flights=n()) %>% arrange(-average_delay) %>% filter(number_of_flights >1000) %>% head(15)
-
-ggplot(by_area) +
-  geom_col(aes(x=fct_reorder(ORIGIN_STATE_ABR,average_delay),y=average_delay)) +
-  theme_calc() +
-  coord_flip() + 
-  xlab('State') +
-  ylab('Average Delay')
-```
-
-Of areas with more than 1000 flights over the four Thanksgiving holiday periods, New Jersey, California, and Oklahoma have the worst delays. Again, the blizzard may be a major consideration here - perhaps we will have to try removing 2018 from the dataset because it skews the dataset.
-
 
 
 #############
 # SIDDHANT PART
 #############
 
-```{r}
-library(ggplot2)
-library(lubridate)
-library(dplyr)
-library(ggthemes)
-
-thanksgiving = read.csv('thanksgiving.csv')
-alldates = read.csv('alldates.csv')
-```
-
 
 ```{r}
-thanksgiving_region<- thanksgiving %>% mutate(region = if_else(DEST_STATE_ABR=="AK","West",
+thanksgiving_region <- thanksgiving %>% mutate(region = if_else(DEST_STATE_ABR=="AK","West",
                                                        if_else(DEST_STATE_ABR=="AL","South",
                                                        if_else(DEST_STATE_ABR=="AR","South",
                                                        if_else(DEST_STATE_ABR=="AZ","West",
@@ -321,7 +247,7 @@ vcd::mosaic(region ~ delay_ind,
 The mosaic plot indicates that there is absolutely no relationship between the region and delay (meaning zero correlation). We can attribute this to the fact that the regions are very general and we might have to look at more granular level data to see which region/airports in specific are affected with respect the on time performance of the flights. 
 
 
-```{r}
+```{r fig.height=10}
 by_flight_delay = thanksgiving_region %>% group_by(OP_UNIQUE_CARRIER,year,region) %>% summarize(delay = mean(ARR_DELAY_NEW,na.rm=TRUE))
 
 ggplot(by_flight_delay,aes(x=OP_UNIQUE_CARRIER,y=delay,fill=as.factor(year))) + 
@@ -329,7 +255,9 @@ ggplot(by_flight_delay,aes(x=OP_UNIQUE_CARRIER,y=delay,fill=as.factor(year))) +
   theme(axis.text.x = element_text(angle = 90, hjust = 1))+
   scale_color_brewer(palette='Set4') +
   xlab('Airlines') +
-  facet_wrap(~region)+
+  coord_flip() +
+  theme_calc() +
+  facet_wrap(~region,nrow=4)+
   ylab('Average Flight Delay during Thanksgiving') +
   labs(fill = 'Year') + 
   ggtitle('Regional Flight Delays By Year')+
@@ -378,30 +306,6 @@ Comparing by airports now (Region is too specific)
 
 
 ```{r}
-
-alldates = alldates %>% mutate(OP_UNIQUE_CARRIER = recode(OP_UNIQUE_CARRIER, "9E" = "Endeavor Air",
-                                                                  "EV" = "ExpressJet",
-                                                                  "G4" = "Allegiant",
-                                                                  "HA" = "Hawaiian",
-                                                                  "MQ" = "Envoy",
-                                                                  "OH" = "PSA",
-                                                                  "OO" = "SkyWest",
-                                                                  "VX" = "Virgin America",
-                                                                  "YV" = "Mesa",
-                                                                  "YX" = "Republic",
-                                                                  "AA" = "American",
-                                                                  "AS" = "Alaska",
-                                                                  "B6" = "JetBlue",
-                                                                  "DL" = "Delta",
-                                                                  "F9" = "Frontier",
-                                                                  "NK" = "Spirit",
-                                                                  "UA" = "United",
-                                                                  "WN" = "Southwest"))
- alldates = alldates %>% filter(OP_UNIQUE_CARRIER %in% c('American','Alaska','JetBlue','Delta','Frontier','Spirit','United','Southwest')) 
-```
-
-
-```{r}
 top_10_airports<-alldates %>% group_by(DEST) %>% summarise(cnt =n()) %>% arrange(-cnt)
 top_10_airports<-top_10_airports$DEST[1:10]
 alldates_top10<-alldates[alldates$DEST %in% top_10_airports,]
@@ -427,8 +331,6 @@ ggplot(by_airport_delay,aes(x=DEST,y=delay,fill=as.factor(year))) +
 
 
 ```{r fig.width=7, fig.height=3}
-
-library(ggpubr)
 alldates_top10_cancellations_Thanksgiving <- alldates_top10[alldates_top10$period =="Thanksgiving" &alldates_top10$year!=2018,] %>% group_by(DEST) %>% summarise(No_of_cnc = sum(CANCELLED,na.rm=TRUE)/20) %>% arrange(-No_of_cnc)
 
 alldates_top10_cancellations_Thanksgiving<-alldates_top10_cancellations_Thanksgiving[c(1:10),]
@@ -469,7 +371,6 @@ Clearly, the Non thanksgiving period has more flights cancelled per day compared
 As we can see, during the Thanksgiving period, Of the 10 busiest airports, Phoenix has most no of cancelled flights per day followed by San Francisco and Las Vegas (Although these are very miniscule). During the Non thanksgiving days, Chicago and Denver are the worst affected airports. 
 
 ```{r fig.width=7, fig.height=3}
-library(reshape2)
 alldates_top10_delays_Thanksgiving <- alldates_top10[alldates_top10$period =="Thanksgiving" &alldates_top10$year!=2018,] %>% group_by(DEST) %>% summarise(No_of_delay = sum(if_else(ARR_DELAY_NEW>0,1,0),na.rm=TRUE)/20) %>% arrange(-No_of_delay)
 
 alldates_top10_delays_Thanksgiving<-alldates_top10_delays_Thanksgiving[c(1:10),]
@@ -508,40 +409,8 @@ Tha above plot shows that flight delays per day during the Thanksgiving period i
 # MOHIT PART
 #############
 
-
 ```{r}
-library(ggplot2)
-library(dplyr)
-library(ggthemes)
-library(tidyr)
-library(stringr)
-
-thanksgiving = read.csv('thanksgiving.csv')
-```
-
-```{r}
-thanksgiving = thanksgiving %>% 
-  mutate(OP_UNIQUE_CARRIER = recode(OP_UNIQUE_CARRIER, 
-                                    "9E" = "Endeavor Air",
-                                    "EV" = "ExpressJet",
-                                    "G4" = "Allegiant",
-                                    "HA" = "Hawaiian",
-                                    "MQ" = "Envoy",
-                                    "OH" = "PSA",
-                                    "OO" = "SkyWest",
-                                    "VX" = "Virgin America",
-                                    "YV" = "Mesa",
-                                    "YX" = "Republic",
-                                    "AA" = "American",
-                                    "AS" = "Alaska",
-                                    "B6" = "JetBlue",
-                                    "DL" = "Delta",
-                                    "F9" = "Frontier",
-                                    "NK" = "Spirit",
-                                    "UA" = "United",
-                                    "WN" = "Southwest"))
-
-thanksgiving = thanksgiving %>% 
+thanksgiving2 = thanksgiving %>% 
   mutate(DAY_OF_WEEK = recode(DAY_OF_WEEK, 
                               "3" = "Wednesday",
                               "4" = "Thursday",
@@ -549,10 +418,7 @@ thanksgiving = thanksgiving %>%
                               "6" = "Saturday",
                               "7" = "Sunday"))
 
-thanksgiving = thanksgiving %>% 
-  filter(OP_UNIQUE_CARRIER %in% c('American','Alaska','JetBlue','Delta','Frontier','Spirit','United','Southwest'))
-
-thanksgiving$DAY_OF_WEEK = factor(thanksgiving$DAY_OF_WEEK, 
+thanksgiving2$DAY_OF_WEEK = factor(thanksgiving2$DAY_OF_WEEK, 
                                   levels = c("Wednesday", "Thursday", "Friday", "Saturday", "Sunday"))
 
 ```
@@ -563,7 +429,7 @@ As stated earlier, we are limiting the data to the 5 days of the Thanksgiving tr
 
 ```{r}
 
-delay_by_day = thanksgiving %>% 
+delay_by_day = thanksgiving2 %>% 
   group_by(DAY_OF_WEEK) %>% 
   summarise("Departure Delay" = mean(DEP_DELAY_NEW, na.rm=TRUE), 
             "Arrival Delay" = mean(ARR_DELAY_NEW, na.rm=TRUE))
@@ -585,7 +451,7 @@ ggplot(delay_by_day, aes(DAY_OF_WEEK, y = delay_time, group = delay_type)) +
 The above graph indicates that across all data points, the average departure delay is slightly higher than the average arrival delay. This observation is actually very intuitive as there is scope for flights under delay at the origin city to make up some time in air before it lands at its destination. As average delay is almost equal at arrival and departure, and because for a traveller the delay in arrival matter more, we will proceed our analysis.
 
 ```{r}
-delay_by_dept_time = thanksgiving %>% 
+delay_by_dept_time = thanksgiving2 %>% 
   group_by(DEP_TIME) %>% 
   summarise(arr_delay = mean(ARR_DELAY_NEW, na.rm=TRUE))
 
@@ -610,7 +476,7 @@ ggplot(delay_by_dept_time, aes(x = DEP_TIME, y = arr_delay_mean)) +
 
 ```{r}
 
-cancellations_by_day = thanksgiving %>% 
+cancellations_by_day = thanksgiving2 %>% 
   group_by(year, DAY_OF_WEEK) %>% 
   summarise(cancellations = sum(CANCELLED, na.rm=TRUE))
 
@@ -630,7 +496,7 @@ Faceting the total number of flight cancellations across years and observing it 
 
 ```{r}
 
-sunday_2018 = thanksgiving %>% 
+sunday_2018 = thanksgiving2 %>% 
   filter(DAY_OF_WEEK == 'Sunday' & year == 2018) %>% 
   drop_na(ARR_DELAY_NEW, WEATHER_DELAY, CARRIER_DELAY) %>% 
   group_by(OP_UNIQUE_CARRIER) %>% 
@@ -669,85 +535,6 @@ This backs our hypothesis that the delay on this particular day is attributed to
 #############
 # BEN PART
 #############
-
-
-```{r}
-library(ggplot2)
-library(dplyr)
-library(ggthemes)
-library(tidyr)
-
-thanksgiving = read.csv('thanksgiving.csv')
-november = read.csv('november.csv')
-alldates = read.csv('alldates.csv')
-```
-
-```{r}
-thanksgiving = thanksgiving %>% mutate(OP_UNIQUE_CARRIER = recode(OP_UNIQUE_CARRIER, "9E" = "Endeavor Air",
-                                                                  "EV" = "ExpressJet",
-                                                                  "G4" = "Allegiant",
-                                                                  "HA" = "Hawaiian",
-                                                                  "MQ" = "Envoy",
-                                                                  "OH" = "PSA",
-                                                                  "OO" = "SkyWest",
-                                                                  "VX" = "Virgin America",
-                                                                  "YV" = "Mesa",
-                                                                  "YX" = "Republic",
-                                                                  "AA" = "American",
-                                                                  "AS" = "Alaska",
-                                                                  "B6" = "JetBlue",
-                                                                  "DL" = "Delta",
-                                                                  "F9" = "Frontier",
-                                                                  "NK" = "Spirit",
-                                                                  "UA" = "United",
-                                                                  "WN" = "Southwest"))
-
-alldates = alldates %>% mutate(OP_UNIQUE_CARRIER = recode(OP_UNIQUE_CARRIER, "9E" = "Endeavor Air",
-                                                                  "EV" = "ExpressJet",
-                                                                  "G4" = "Allegiant",
-                                                                  "HA" = "Hawaiian",
-                                                                  "MQ" = "Envoy",
-                                                                  "OH" = "PSA",
-                                                                  "OO" = "SkyWest",
-                                                                  "VX" = "Virgin America",
-                                                                  "YV" = "Mesa",
-                                                                  "YX" = "Republic",
-                                                                  "AA" = "American",
-                                                                  "AS" = "Alaska",
-                                                                  "B6" = "JetBlue",
-                                                                  "DL" = "Delta",
-                                                                  "F9" = "Frontier",
-                                                                  "NK" = "Spirit",
-                                                                  "UA" = "United",
-                                                                  "WN" = "Southwest"))
-
-november = november %>% mutate(OP_UNIQUE_CARRIER = recode(OP_UNIQUE_CARRIER, "9E" = "Endeavor Air",
-                                                                  "EV" = "ExpressJet",
-                                                                  "G4" = "Allegiant",
-                                                                  "HA" = "Hawaiian",
-                                                                  "MQ" = "Envoy",
-                                                                  "OH" = "PSA",
-                                                                  "OO" = "SkyWest",
-                                                                  "VX" = "Virgin America",
-                                                                  "YV" = "Mesa",
-                                                                  "YX" = "Republic",
-                                                                  "AA" = "American",
-                                                                  "AS" = "Alaska",
-                                                                  "B6" = "JetBlue",
-                                                                  "DL" = "Delta",
-                                                                  "F9" = "Frontier",
-                                                                  "NK" = "Spirit",
-                                                                  "UA" = "United",
-                                                                  "WN" = "Southwest"))
-```
-
-```{r}
-thanksgiving = thanksgiving %>% filter(OP_UNIQUE_CARRIER %in% c('American','Alaska','JetBlue','Delta','Frontier','Spirit','United','Southwest'))
-
-november = november %>% filter(OP_UNIQUE_CARRIER %in% c('American','Alaska','JetBlue','Delta','Frontier','Spirit','United','Southwest'))
-
-alldates = alldates %>% filter(OP_UNIQUE_CARRIER %in% c('American','Alaska','JetBlue','Delta','Frontier','Spirit','United','Southwest'))
-```
 
 We will now answer a vital question: how has airline OTP during the Thanksgiving holiday compared to airline OTP outside of the Thanksgiving holiday since the mergers of the major US airlines?
 
