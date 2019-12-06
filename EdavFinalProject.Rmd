@@ -6,18 +6,17 @@ output: html_document
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = FALSE)
 ```
 
-#############
-# FULL GROUP PART
-#############
+# Introduction
 
-# INITIAL OBSERVATIONS
+(Problem statement)
 
-[10 points]
+(Let's do an initial comparison for the airlines)
 
-```{r}
+
+```{r echo=FALSE}
 library(ggplot2)
 library(dplyr)
 library(ggthemes)
@@ -32,7 +31,7 @@ thanksgiving = read.csv('thanksgiving.csv')
 alldates = read.csv('alldates.csv')
 ```
 
-```{r}
+```{r echo=FALSE}
 thanksgiving = thanksgiving %>% mutate(OP_UNIQUE_CARRIER = recode(OP_UNIQUE_CARRIER, "9E" = "Endeavor Air",
                                                                   "EV" = "ExpressJet",
                                                                   "G4" = "Allegiant",
@@ -73,43 +72,48 @@ alldates = alldates %>% mutate(OP_UNIQUE_CARRIER = recode(OP_UNIQUE_CARRIER, "9E
 ```
 
 
+```{r echo=FALSE}
+by_airline = thanksgiving %>% group_by(OP_UNIQUE_CARRIER) %>% summarize(delay = mean(ARR_DELAY_NEW,na.rm=TRUE)) %>% arrange(-delay)
 
-```{r}
-by_airline = thanksgiving %>% group_by(OP_UNIQUE_CARRIER) %>% summarize(delay = mean(ARR_DELAY_NEW,na.rm=TRUE))
-
-ggplot(by_airline,aes(x=OP_UNIQUE_CARRIER,y=delay)) + 
-  geom_col(position='dodge') +
+ggplot(by_airline,aes(x=fct_reorder(OP_UNIQUE_CARRIER,delay),y=delay)) + 
+  geom_col(position='dodge',fill='black') +
   theme_calc() + 
-  xlab('Airline') +
-  ylab('Average Delay') +
-  coord_flip()
+  xlab('') +
+  ylab('Average Delay (Minutes)') +
+  coord_flip() +
+  ggtitle('Average Thanksgiving Holiday Flight Delays') +
+  theme(plot.title = element_text(hjust = 0.5))  +
+  theme(plot.subtitle = element_text(hjust = 0.5))
 ```
 
-Ultra low-cost carrier Allegiant (G4) leads the pack in Thanksgivng delays, which isn't surprising considering its reputation (but wait, more on this in a second!). Regional airline Mesa Airlines comes next. Hawaiian Airlines has the fewest delays of any airline. 
+Ultra low-cost carrier Allegiant leads the pack in Thanksgivng delays, which isn't surprising considering its reputation (but wait, more on this in a second!). Regional airline Mesa Airlines comes next. Hawaiian Airlines has the fewest delays of any airline. 
 
 It is clear that focusing on large carriers will make the most sense for our purposes, since consumers are typically unfamiliar with regional airlines that fly under either a single mainline carrier's brand or multiple brands, and those airlines tend to be available for only a small set of routes.
 
-Among the three major legacy carriers, Delta (DL) has the fewest delays, followed by American Airlines (AA), and United (UA) performs by far the worst. Southwest (WN) performs a little better than American Airlines, and Alaska Airlines (AS) performs a little worse than American Airlines.
+Among the three major legacy carriers, Delta has the fewest delays, followed by American Airlines, and United performs by far the worst. Southwest (WN) performs a little better than American Airlines, and Alaska Airlines (AS) performs a little worse than American Airlines.
 
 Does this change by year, though? How much does our data vary by year?
-```{r}
+```{r echo=FALSE, fig.height=8}
 by_year = thanksgiving %>% group_by(OP_UNIQUE_CARRIER,year) %>% summarize(delay = mean(ARR_DELAY_NEW,na.rm=TRUE))
 
-ggplot(by_year,aes(x=OP_UNIQUE_CARRIER,y=delay,fill=as.factor(year))) + 
+ggplot(by_year,aes(x=fct_reorder(OP_UNIQUE_CARRIER,delay),y=delay,fill=as.factor(year))) + 
   geom_col(position=position_dodge2(preserve = "single",width=1)) +
   scale_color_brewer(palette='Set3') +
   theme_calc() +
-  xlab('Airline') +
-  ylab('Average Flight Delay') +
+  xlab('') +
+  ylab('Average Delay (Minutes)') +
   labs(fill = 'Year') +
-  coord_flip()
+  coord_flip()  +
+  ggtitle('Average Thanksgiving Holiday Flight Delays') +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  theme(legend.title = element_text(hjust = 0.5)) +
+  guides(fill = guide_legend(reverse=T))
+  
 ```
 
-This graph isn't particularly pretty, but it does the job for our EDA - it shows that major airline OTP stayed fairly steady from 2015 to 2017, and then got much worse in 2018 across the board - perhaps due to the blizzard that occured in part of the country during Thanksgiving 2018. We may need to consider whether 2018 should be included in this analysis (we will examine this later).
+We will examine year-to-year patterns (particularly the horrors of Thanksgiving Sunday 2018) later, but for now, this graph provides a curious revelation: Allegiant did not have any flights during the Thanksgiving holiday before 2018. No wonder its on time performance was so terrible - it only flew on Thanksgiving during the year when delays were by far the worst.
 
-This also provides a curious revelation: Allegiant did not have any flights during the Thanksgiving holiday before 2018. No wonder its on time performance was so terrible - it only flew on Thanksgiving during the year when delays were by far the worst.
-
-Again, this furthers our conviction that focusing on large, national, major mainline airlines that flew in all four years will make the most sense for our purposes.
+This furthers our conviction that focusing on large, national, major mainline airlines that flew in all four years will make the most sense for our purposes.
 
 We will apply the following criteria for removing airlines:  
 
@@ -147,12 +151,7 @@ alldates = alldates %>% filter(OP_UNIQUE_CARRIER %in% c('American','Alaska','Jet
 ```
 
 
-#############
-# SIDDHANT PART
-#############
-
-
-```{r}
+```{r echo=FALSE}
 thanksgiving_region <- thanksgiving %>% mutate(region = if_else(DEST_STATE_ABR=="AK","West",
                                                        if_else(DEST_STATE_ABR=="AL","South",
                                                        if_else(DEST_STATE_ABR=="AR","South",
@@ -211,7 +210,7 @@ thanksgiving_region$region<- ifelse(thanksgiving_region$DEST_STATE_ABR=="WI" & t
 thanksgiving_region<-thanksgiving_region %>% filter(!region %in% c(""))
 ```
 
-```{r}
+```{r echo=FALSE}
 by_region_delay2 = thanksgiving_region %>% group_by(region) %>% summarize(delay = mean(ARR_DELAY_NEW,na.rm=TRUE))
 
 ggplot(by_region_delay2,aes(x=region,y=delay)) + 
@@ -219,26 +218,25 @@ ggplot(by_region_delay2,aes(x=region,y=delay)) +
   theme_calc() +
   xlab('') +
   ylab('Average Delay (Minutes)') +
-  ggtitle('Flight Delays By Region')+
+  ggtitle('Thanksgiving Holiday Flight Delays By Region')+
   theme(plot.title = element_text(hjust = 0.5)) +
   theme(plot.subtitle = element_text(hjust = 0.5)) 
 ```
 
 
 
-```{r}
+```{r echo=FALSE}
 by_region_delay = thanksgiving_region %>% group_by(region,year) %>% summarize(delay = mean(ARR_DELAY_NEW,na.rm=TRUE))
 
 ggplot(by_region_delay,aes(x=region,y=delay,fill=as.factor(year))) + 
   geom_col(position=position_dodge2(preserve = "single",width=1)) +
-  scale_color_brewer(palette='Set4') +
   theme_calc() +
-  xlab('') +
   ylab('Average Delay (Minutes)') +
-  labs(fill = 'Year') + 
-  ggtitle('Thanksgiving Holiday Delays Grouped By Region & Year')+
+  ggtitle('Thanksgiving Holiday Flight Delays Grouped By Region & Year')+
+  theme(axis.title.x=element_blank())+
   theme(plot.title = element_text(hjust = 0.5)) +
-  theme(legend.title = element_text(hjust = 0.5))
+  theme(legend.title = element_blank()) +
+  theme(legend.position = 'bottom',legend.direction='horizontal')
 ```
 
 (Add here: seems like Northeast and West have worse delays, and that delays don't cluster to one region - probably because flight nertworks are all interconnected)
@@ -260,7 +258,7 @@ vcd::mosaic(region ~ delay_ind,
 The mosaic plot indicates that there is absolutely no relationship between the region and delay (meaning zero correlation). We can attribute this to the fact that the regions are very general and we might have to look at more granular level data to see which region/airports in specific are affected with respect the on time performance of the flights. 
 
 
-```{r fig.height=20}
+```{r echo=FALSE, fig.height=10}
 by_flight_delay = thanksgiving_region %>% group_by(OP_UNIQUE_CARRIER,region) %>% summarize(delay = mean(ARR_DELAY_NEW,na.rm=TRUE))
 
 ggplot(by_flight_delay,aes(x=OP_UNIQUE_CARRIER,y=delay,fill=OP_UNIQUE_CARRIER)) + 
@@ -270,7 +268,7 @@ ggplot(by_flight_delay,aes(x=OP_UNIQUE_CARRIER,y=delay,fill=OP_UNIQUE_CARRIER)) 
   coord_flip() +
   theme_calc() +
   facet_wrap(~region,nrow=4)+
-  ylab('Average Flight Delay (Minutes)') +
+  ylab('Average Delay (Minutes)') +
   labs(fill = 'Year') + 
   ggtitle('Thanksgiving Flight Delays By Region')+
   theme(plot.title = element_text(hjust = 0.5)) +
@@ -291,7 +289,7 @@ With a cursory glance, it seems thatthe OTP for all the regions are same there. 
 Here, we see that in the South, Delta and Southwest Airlines have the best performance followed by American Airlines which is quite intuitive and a little research tells us that Southwest has its base in Dallas, TX allowing it to have a leverage over the other airlines. American airlines is also headquartered in Fort Worth, TX making it the second best OTP airline (At least based on the data). Even though most airlines were affected in 2018, the aforementioned airlines played it well. Overall the southern region seem to performing really well than the other 3. However the difference is not statistically significant and hence in order to draw some inference, we need to move towards more granular approach. 
 
 
-```{r fig.width=6, fig.height=12}
+```{r echo=FALSE, fig.width=6, fig.height=12}
 thanksgiving_region_dot_plot<-thanksgiving_region[thanksgiving_region$year!=2018,] %>% group_by(DEST) %>%
                               summarise(delay=mean(ARR_DELAY_NEW,na.rm=TRUE)) %>% arrange(-delay)
 
@@ -325,35 +323,35 @@ A cleveland dot plot of average delay time with respect to the airports tells us
 Comparing by airports now (Region is too specific)
 
 
-```{r}
+```{r echo=FALSE}
 top_10_airports<-alldates %>% group_by(DEST) %>% summarise(cnt =n()) %>% arrange(-cnt)
 top_10_airports<-top_10_airports$DEST[1:10]
 alldates_top10<-alldates[alldates$DEST %in% top_10_airports,]
 ```
 
-```{r fig.width=7, fig.height=3}
+```{r echo=FALSE, fig.height=8}
 by_airport_delay_tg = alldates_top10 %>% filter(period == "Thanksgiving") %>% group_by(DEST,year,period) %>% summarize(delay = mean(ARR_DELAY_NEW,na.rm=TRUE))
 
-by_airport_delay_ntg = alldates_top10 %>%  filter(period =="Non-Thanksgiving") %>% group_by(DEST,year,period) %>% summarize(delay = mean(ARR_DELAY_NEW,na.rm=TRUE))
+by_airport_delay_ntg = alldates_top10 %>%  filter(period =="Pre-Thanksgiving") %>% group_by(DEST,year,period) %>% summarize(delay = mean(ARR_DELAY_NEW,na.rm=TRUE))
 
 by_airport_delay<-bind_rows(by_airport_delay_tg,by_airport_delay_ntg)
 
 ggplot(by_airport_delay,aes(x=DEST,y=delay,fill=as.factor(year))) + 
   geom_col(position=position_dodge2(preserve = "single",width=1)) +
-  facet_wrap(~period)+
-  scale_color_brewer(palette='Set4') +
+  facet_wrap(~period,nrow=2)+
   theme_calc() +
   xlab('') +
-  ylab('Average Flight Delay (Minutes)') +
-  labs(fill = 'Year') + 
+  ylab('Average Delay (Minutes)') +
   ggtitle('Airport Flight Delays Before/During Thanksgiving Holiday') +
   theme(plot.title = element_text(hjust = 0.5))  +
-  theme(legend.title = element_text(hjust = 0.5)) 
+  theme(legend.title = element_blank()) +
+  guides(fill = guide_legend(reverse=T)) +
+  coord_flip() 
   
 ```
 
 
-```{r fig.width=7, fig.height=3}
+```{r echo=FALSE, fig.height=3, fig.width=7}
 alldates_top10_cancellations_Thanksgiving <- alldates_top10[alldates_top10$period =="Thanksgiving" &alldates_top10$year!=2018,] %>% group_by(DEST) %>% summarise(No_of_cnc = sum(CANCELLED,na.rm=TRUE)/20) %>% arrange(-No_of_cnc)
 
 alldates_top10_cancellations_Thanksgiving<-alldates_top10_cancellations_Thanksgiving[c(1:10),]
@@ -365,7 +363,7 @@ alldates_top10_cancellations_Thanksgiving$DEST <-
 
   
 
-  alldates_top10_cancellations_Non_Thanksgiving <- alldates_top10[alldates_top10$period =="Non-Thanksgiving" &alldates_top10$year!=2018,] %>% group_by(DEST) %>% summarise(No_of_cnc = sum(CANCELLED,na.rm=TRUE)/80) %>% arrange(-No_of_cnc)
+  alldates_top10_cancellations_Non_Thanksgiving <- alldates_top10[alldates_top10$period =="Pre-Thanksgiving" &alldates_top10$year!=2018,] %>% group_by(DEST) %>% summarise(No_of_cnc = sum(CANCELLED,na.rm=TRUE)/80) %>% arrange(-No_of_cnc)
   
   alldates_top10_cancellations_Non_Thanksgiving<-alldates_top10_cancellations_Non_Thanksgiving[c(1:10),]
   
@@ -375,7 +373,7 @@ alldates_top10_cancellations_Thanksgiving$DEST <-
            [order(-alldates_top10_cancellations_Non_Thanksgiving$No_of_cnc)])
  
   alldates_top10_cancellations_Thanksgiving$period<-"Thanksgiving"
-alldates_top10_cancellations_Non_Thanksgiving$period<-"Non-Thanksgiving"
+alldates_top10_cancellations_Non_Thanksgiving$period<-"Pre-Thanksgiving"
 no_of_cancellations<-bind_rows(alldates_top10_cancellations_Thanksgiving,alldates_top10_cancellations_Non_Thanksgiving)
 
 ggplot(no_of_cancellations,aes(x=DEST,y=No_of_cnc,fill=as.factor(period))) + 
@@ -388,7 +386,7 @@ ggplot(no_of_cancellations,aes(x=DEST,y=No_of_cnc,fill=as.factor(period))) +
   labs(subtitle = '20 Days Before Thanksgiving Holiday vs. Thanksgiving Holiday') +
   theme(plot.title = element_text(hjust = 0.5))  +
   theme(plot.subtitle = element_text(hjust = 0.5)) +
-  theme(legend.position = 'none') 
+  theme(legend.position = 'bottom')
 
 ```
 
@@ -396,7 +394,7 @@ ggplot(no_of_cancellations,aes(x=DEST,y=No_of_cnc,fill=as.factor(period))) +
 Clearly, the Non thanksgiving period has more flights cancelled per day compared to the thanksgiving period.
 As we can see, during the Thanksgiving period, Of the 10 busiest airports, Phoenix has most no of cancelled flights per day followed by San Francisco and Las Vegas (Although these are very miniscule). During the Non thanksgiving days, Chicago and Denver are the worst affected airports. 
 
-```{r fig.width=7, fig.height=3}
+```{r echo=FALSE, fig.width=7, fig.height=3}
 alldates_top10_delays_Thanksgiving <- alldates_top10[alldates_top10$period =="Thanksgiving" &alldates_top10$year!=2018,] %>% group_by(DEST) %>% summarise(No_of_delay = sum(if_else(ARR_DELAY_NEW>0,1,0),na.rm=TRUE)/20) %>% arrange(-No_of_delay)
 
 alldates_top10_delays_Thanksgiving<-alldates_top10_delays_Thanksgiving[c(1:10),]
@@ -406,7 +404,7 @@ alldates_top10_delays_Thanksgiving$DEST <-
          levels = alldates_top10_delays_Thanksgiving$DEST
          [order(-alldates_top10_delays_Thanksgiving$No_of_delay)])
 
-alldates_top10_delays_Non_Thanksgiving <- alldates_top10[alldates_top10$period =="Non-Thanksgiving" &alldates_top10$year!=2018,] %>% group_by(DEST) %>% summarise(No_of_delay = sum(if_else(ARR_DELAY_NEW>0,1,0),na.rm=TRUE)/80) %>% arrange(-No_of_delay)
+alldates_top10_delays_Non_Thanksgiving <- alldates_top10[alldates_top10$period =="Pre-Thanksgiving" &alldates_top10$year!=2018,] %>% group_by(DEST) %>% summarise(No_of_delay = sum(if_else(ARR_DELAY_NEW>0,1,0),na.rm=TRUE)/80) %>% arrange(-No_of_delay)
 
 alldates_top10_delays_Non_Thanksgiving<-alldates_top10_delays_Non_Thanksgiving[c(1:10),]
 
@@ -416,29 +414,25 @@ alldates_top10_delays_Non_Thanksgiving$DEST <-
          [order(-alldates_top10_delays_Non_Thanksgiving$No_of_delay)])
 
 alldates_top10_delays_Thanksgiving$period<-"Thanksgiving"
-alldates_top10_delays_Non_Thanksgiving$period<-"Non-Thanksgiving"
+alldates_top10_delays_Non_Thanksgiving$period<-"Pre-Thanksgiving"
 no_of_delays<-bind_rows(alldates_top10_delays_Thanksgiving,alldates_top10_delays_Non_Thanksgiving)
 
 ggplot(no_of_delays,aes(x=DEST,y=No_of_delay,fill=as.factor(period))) + 
   geom_col(position=position_dodge2(preserve = "single",width=1)) +
-  scale_color_brewer(palette='Set3') +
   theme_calc() +
-  xlab('Airport') +
   ylab('Flight Delays Per Day') +
   ggtitle('Flight Delays For Ten Biggest Airports') +
   labs(subtitle = '20 Days Before Thanksgiving Holiday vs. Thanksgiving Holiday') +
   theme(plot.title = element_text(hjust = 0.5))  +
+  theme(axis.title.x = element_blank()) +
   theme(plot.subtitle = element_text(hjust = 0.5)) +
-  theme(legend.position = 'none') 
+  theme(legend.position = 'bottom',legend.direction='horizontal') +
+  theme(legend.title = element_blank())
 ```
 
-Tha above plot shows that flight delays per day during the Thanksgiving period is not significantly different from the Non-Thanksgiving period except for Atlanta which is based out of Georgia. 
+Tha above plot shows that flight delays per day during the Thanksgiving period is not significantly different from the Pre-Thanksgiving period except for Atlanta which is based out of Georgia. 
 
-#############
-# MOHIT PART
-#############
-
-```{r}
+```{r echo=FALSE}
 thanksgiving2 = thanksgiving %>% 
   mutate(DAY_OF_WEEK = recode(DAY_OF_WEEK, 
                               "3" = "Wednesday",
@@ -456,7 +450,7 @@ We will now deep dive into our data to analyze how airline delays look like lead
 
 As stated earlier, we are limiting the data to the 5 days of the Thanksgiving travel period, in order ensure that we stay in a season with similar weather and travel patterns. Moreover, in order to get an accurate sense of flight delays across US during Thanksgiving, we have chosen to consider only the 8 major airlines that according to us see the heaviest traffic.
 
-```{r}
+```{r echo=FALSE}
 
 delay_by_day = thanksgiving2 %>% 
   group_by(DAY_OF_WEEK) %>% 
@@ -485,7 +479,7 @@ ggplot(delay_by_day, aes(DAY_OF_WEEK,
 
 The above graph indicates that across all data points, the average departure delay is slightly higher than the average arrival delay. This observation is actually very intuitive as there is scope for flights under delay at the origin city to make up some time in air before it lands at its destination. As average delay is almost equal at arrival and departure, and because for a traveller the delay in arrival matter more, we will proceed our analysis.
 
-```{r}
+```{r echo=FALSE}
 delay_by_dept_time = thanksgiving2 %>% 
   group_by(DEP_TIME) %>% 
   summarise(arr_delay = mean(ARR_DELAY_NEW, na.rm=TRUE))
@@ -514,8 +508,7 @@ ggplot(delay_by_dept_time, aes(x = DEP_TIME, y = arr_delay_mean)) +
 
 **Inference**: We would now like to identify if there is any pattern to delay based on the departure time of flights. We are expecting that there would be more delays during peak hours which can cause a chain reaction and lead to subsequent flight delays. After plotting the departure hour of flights on a radial axis, we get to see something interesting and unsual. Contradictory to our expectation, the average delay of flights is much higher at the very starting of the day, between 1AM-4AM, drastically drops starting 5PM and continues to increase gradually till the end of the day. Though the gradual increase can be due to chain reaction of delays, the extremely high delay in the 1AM-4AM window could be due to an outlier and we will deep dive into this more to understand the reason.
 
-```{r}
-
+```{r echo=FALSE}
 cancellations_by_day = thanksgiving2 %>% 
   group_by(year, DAY_OF_WEEK) %>% 
   summarise(cancellations = sum(CANCELLED, na.rm=TRUE))
@@ -536,7 +529,7 @@ ggplot(cancellations_by_day, aes(x = DAY_OF_WEEK, y = cancellations)) +
 
 Faceting the total number of flight cancellations across years and observing it across the day of week lead us to some very interesting insight. As we can see from the above plot, there were an extremely high number of flight cancellations on the Sunday of 2018. This tells us that a one off event, due to weather or airport or carrier issues, large scale delays happened on this particular day and it most likely does not relate to delay because of Thanksgiving rush.
 
-```{r}
+```{r echo=FALSE}
 
 sunday_2018 = thanksgiving2 %>% 
   filter(DAY_OF_WEEK == 'Sunday' & year == 2018) %>% 
@@ -591,7 +584,7 @@ We also share a caveat (which applies to all this research) that the four years 
 
 That being said, let's compare Thanksgiving and pre-Thanksgiving.
 
-```{r}
+```{r echo=FALSE}
 by_period_all = alldates %>% group_by(period) %>% summarize(delay = mean(ARR_DELAY_NEW,na.rm=TRUE))
 
 ggplot(by_period_all,aes(x=period,y=delay,fill=period)) + 
@@ -618,7 +611,7 @@ Still though, with that caveat, our result stands: and at the very least, it see
 
 Now let's examine how this trend plays out for different airlines.
 
-```{r}
+```{r echo=FALSE}
 by_airline_n = alldates %>% group_by(OP_UNIQUE_CARRIER,period) %>% summarize(delay = mean(ARR_DELAY_NEW,na.rm=TRUE))
 
 ggplot(by_airline_n,aes(x=OP_UNIQUE_CARRIER,y=delay,fill=period)) + 
@@ -638,7 +631,7 @@ ggplot(by_airline_n,aes(x=OP_UNIQUE_CARRIER,y=delay,fill=period)) +
 ```
 
 
-```{r}
+```{r echo=FALSE}
 delay_c = alldates %>% 
   group_by(OP_UNIQUE_CARRIER,period) %>% 
   summarize(delay = mean(ARR_DELAY_NEW,na.rm=TRUE)) %>%
@@ -677,7 +670,7 @@ So flight delays are shorter during Thanksgiving. Surprise!
 
 Are there more long delays, though - say, those over 30 minutes? Let's consider that now.
 
-```{r}
+```{r echo=FALSE}
 delays_over_30 = alldates %>% filter(ARR_DELAY_NEW > 30)
 
 by_airline_30 = delays_over_30 %>% group_by(OP_UNIQUE_CARRIER,period) %>% summarize(delay = mean(ARR_DELAY_NEW,na.rm=TRUE))
@@ -702,7 +695,7 @@ It seems that long delays are a fairly random event across all airlines and date
 
 What about *really* long delays though? Which airlines have the most of those? 
 
-```{r}
+```{r echo=FALSE}
 ggplot(alldates) +
   geom_boxplot(aes(x = OP_UNIQUE_CARRIER, y = ARR_DELAY_NEW)) +
   coord_flip() +
@@ -723,7 +716,7 @@ ggplot(alldates) +
   facet_wrap(~period)
 ```
 
-```{r}
+```{r echo=FALSE}
 ggplot(alldates) +
   geom_boxplot(aes(x = period,y = ARR_DELAY_NEW,fill=period)) +
   coord_flip() +
@@ -746,7 +739,7 @@ But now... what about the flights that aren't delayed, but just get flat-out can
 
 Let's take a look.
 
-```{r}
+```{r echo=FALSE}
 cancellations = alldates %>% 
   group_by(period) %>% 
   summarize(cancelled= sum(CANCELLED,na.rm=TRUE)) %>%
@@ -773,7 +766,7 @@ We expected a rub here, but alas, cancellations drop as well during the Thanksgi
 
 Next we take a look at which airlines stepped up their getting-off-the-ground game the most.
 
-```{r}
+```{r echo=FALSE}
 cancellations = alldates %>% group_by(OP_UNIQUE_CARRIER,period) %>% summarize(cancelled= sum(CANCELLED,na.rm=TRUE)) %>%
   mutate(divider = ifelse(period=='Thanksgiving',20,80)) %>%
   mutate(cancelled_per_day = cancelled/divider)
@@ -795,7 +788,7 @@ ggplot(cancellations,aes(x=OP_UNIQUE_CARRIER,y=cancelled_per_day,fill=period)) +
 ```
 
 
-```{r}
+```{r echo=FALSE}
 cancellations_c = alldates %>% 
   group_by(OP_UNIQUE_CARRIER,period) %>% 
   summarize(cancellations = sum(CANCELLED,na.rm=TRUE))%>%
@@ -844,7 +837,7 @@ So let's see- if we examine the five days of the Thanksgiving travel rush and th
 
 Let's see what the graphs say. 
 
-```{r}
+```{r echo=FALSE}
 bydates = alldates %>% 
   mutate(nday = mday(FL_DATE))
 
@@ -876,7 +869,7 @@ ggplot(bydatesgrouped,aes(x=nday,y=avgdelay,color=as.factor(year)),) +
   theme(legend.title = element_text(hjust = 0.5)) 
 ```
 
-```{r}
+```{r echo=FALSE}
 bydatesgrouped2 = bydates %>%
   group_by(nday) %>%
   summarize(avgdelay = mean(ARR_DELAY_NEW,na.rm=TRUE))
@@ -899,7 +892,7 @@ ggplot(bydatesgrouped2,aes(x=nday,y=avgdelay)) +
 ```
 
 
-```{r}
+```{r echo=FALSE}
 bydatesgrouped3 = bydates %>%
   group_by(nday,year) %>%
   summarize(cancellations = sum(CANCELLED,na.rm=TRUE)) %>%
@@ -927,11 +920,11 @@ g = ggplot(bydatesgrouped3,aes(x=nday,y=cancelled_per_day,color=as.factor(year))
 g
 ```
 
-```{r}
+```{r echo=FALSE}
 g + coord_cartesian(ylim=c(0,20))
 ```
 
-```{r}
+```{r echo=FALSE}
 bydatesgrouped4 = bydates %>%
   group_by(nday) %>%
   summarize(cancellations = sum(CANCELLED,na.rm=TRUE)) %>%
