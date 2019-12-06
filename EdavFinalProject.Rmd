@@ -258,6 +258,21 @@ vcd::mosaic(region ~ delay_ind,
 The mosaic plot indicates that there is absolutely no relationship between the region and delay (meaning zero correlation). We can attribute this to the fact that the regions are very general and we might have to look at more granular level data to see which region/airports in specific are affected with respect the on time performance of the flights. 
 
 
+```{r}
+by_region_delay = thanksgiving_region %>% group_by(region,year) %>% summarise(Freq=n())
+
+vcd::mosaic(region ~ year,
+       gp = grid::gpar(fill = c("lightblue", "blue"),
+                 col = "white"),
+       spacing = vcd::spacing_equal(sp = unit(0, "lines")),
+       by_region_delay,
+       labeling=vcd::labeling_border(rot_labels = c(20,0,0,90)),
+       main = 'Flights Delays: Grouped By Region')
+
+
+```
+
+
 ```{r echo=FALSE, fig.height=10}
 by_flight_delay = thanksgiving_region %>% group_by(OP_UNIQUE_CARRIER,region) %>% summarize(delay = mean(ARR_DELAY_NEW,na.rm=TRUE))
 
