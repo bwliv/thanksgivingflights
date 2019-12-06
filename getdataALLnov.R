@@ -17,10 +17,10 @@ file2016 = file2016 %>% filter(FL_DATE <= ymd('2016-11-27')) %>% filter(FL_DATE 
 file2017 = file2017 %>% filter(FL_DATE <= ymd('2017-11-26')) %>% filter(FL_DATE >= ymd('2017-11-02'))
 file2018 = file2018 %>% filter(FL_DATE <= ymd('2018-11-25'))
 
-file2015 = mutate(file2015,period = ifelse(FL_DATE >= ymd('2015-11-25'),'Thanksgiving','Non-Thankgiving'))
-file2016 = mutate(file2016,period = ifelse(FL_DATE >= ymd('2016-11-23'),'Thanksgiving','Non-Thankgiving'))
-file2017 = mutate(file2017,period = ifelse(FL_DATE >= ymd('2017-11-22'),'Thanksgiving','Non-Thankgiving'))
-file2018 = mutate(file2018,period = ifelse(FL_DATE >= ymd('2018-11-21'),'Thanksgiving','Non-Thankgiving'))
+file2015 = mutate(file2015,period = ifelse(FL_DATE >= ymd('2015-11-25'),'Thanksgiving','Non-Thanksgiving'))
+file2016 = mutate(file2016,period = ifelse(FL_DATE >= ymd('2016-11-23'),'Thanksgiving','Non-Thanksgiving'))
+file2017 = mutate(file2017,period = ifelse(FL_DATE >= ymd('2017-11-22'),'Thanksgiving','Non-Thanksgiving'))
+file2018 = mutate(file2018,period = ifelse(FL_DATE >= ymd('2018-11-21'),'Thanksgiving','Non-Thanksgiving'))
 
 alldates = bind_rows(file2015,file2016,file2017,file2018)
 
