@@ -241,20 +241,6 @@ ggplot(by_region_delay,aes(x=region,y=delay,fill=as.factor(year))) +
 
 (Add here: seems like Northeast and West have worse delays, and that delays don't cluster to one region - probably because flight nertworks are all interconnected)
 
-```{r}
-by_region_delay = thanksgiving_region %>% mutate(delay_ind = if_else(thanksgiving_region$ARR_DELAY_NEW >0,"Delay","No Delay")) %>% group_by(region,delay_ind) %>% summarise(Freq=n())
-
-vcd::mosaic(region ~ delay_ind,
-       gp = grid::gpar(fill = c("lightblue", "blue"),
-                 col = "white"),
-       spacing = vcd::spacing_equal(sp = unit(0, "lines")),
-       by_region_delay,
-       labeling=vcd::labeling_border(rot_labels = c(20,0,0,90)),
-       main = 'Flights Delays: Grouped By Region')
-
-
-```
-
 The mosaic plot indicates that there is absolutely no relationship between the region and delay (meaning zero correlation). We can attribute this to the fact that the regions are very general and we might have to look at more granular level data to see which region/airports in specific are affected with respect the on time performance of the flights. 
 
 
@@ -323,7 +309,7 @@ theme_dotplot <- theme_bw(14) +
 
 # create the plot
 ggplot(thanksgiving_region_dot_plot, aes(x = delay, y = reorder(DEST, delay),color=region)) +
-    geom_point(color = "red") +
+    geom_point(color = "black",size=2) +
     theme_dotplot +
     xlab("\nAverage Delay (Minutes)") +
     ylab("Airports\n") +
@@ -400,13 +386,19 @@ ggplot(no_of_cancellations,aes(x=DEST,y=No_of_cnc,fill=as.factor(period))) +
   ggtitle('Flight Cancellations For Ten Biggest Airports') +
   labs(subtitle = '20 Days Before Thanksgiving Holiday vs. Thanksgiving Holiday') +
   theme(plot.title = element_text(hjust = 0.5))  +
+  theme(axis.title.x = element_blank()) +
   theme(plot.subtitle = element_text(hjust = 0.5)) +
-  theme(legend.position = 'bottom')
+  theme(legend.position = 'bottom',legend.direction='horizontal') +
+  scale_colour_manual(
+    values = c('red','blue'),
+    aesthetics = c("colour", "fill"))  +
+  theme(legend.title = element_blank()) 
 
 ```
 
 
 Clearly, the Non thanksgiving period has more flights cancelled per day compared to the thanksgiving period.
+
 As we can see, during the Thanksgiving period, Of the 10 busiest airports, Phoenix has most no of cancelled flights per day followed by San Francisco and Las Vegas (Although these are very miniscule). During the Non thanksgiving days, Chicago and Denver are the worst affected airports. 
 
 ```{r echo=FALSE, fig.width=7, fig.height=3}
@@ -442,7 +434,10 @@ ggplot(no_of_delays,aes(x=DEST,y=No_of_delay,fill=as.factor(period))) +
   theme(axis.title.x = element_blank()) +
   theme(plot.subtitle = element_text(hjust = 0.5)) +
   theme(legend.position = 'bottom',legend.direction='horizontal') +
-  theme(legend.title = element_blank())
+  theme(legend.title = element_blank()) +
+  scale_colour_manual(
+    values = c('red','blue'),
+    aesthetics = c("colour", "fill")) 
 ```
 
 Tha above plot shows that flight delays per day during the Thanksgiving period is not significantly different from the Pre-Thanksgiving period except for Atlanta which is based out of Georgia. 
@@ -567,6 +562,9 @@ ggplot(sunday_2018, aes(x = reorder(OP_UNIQUE_CARRIER, -delay_time),
   labs(x = "Airline", 
        y = "Average Delay (mins)") +
   theme_calc() +
+  scale_colour_manual(
+    values = c('red','blue','darkgreen','orange'),
+    aesthetics = c("colour", "fill")) +
   theme(plot.title = element_text(hjust = 0.5)) +
   theme(plot.subtitle = element_text(hjust = 0.5)) +
   guides(fill = guide_legend(title="Delay Type")) +
@@ -968,5 +966,4 @@ These graphs yield an unexpected result - it seems that, generally, the Wednesda
 This suggests that leaving early for the Thanksgiving holiday doesn't make you less prone to delays, while coming home a day or two early could make your flight more reliable.
 
 In conclusion, the days around Thanksgiving are relatively calm - it's the weekends before and after Thanksgiving that cause the most problems for travelers.
-
 
