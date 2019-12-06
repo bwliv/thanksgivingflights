@@ -462,17 +462,23 @@ delay_by_day = thanksgiving2 %>%
   group_by(DAY_OF_WEEK) %>% 
   summarise("Departure Delay" = mean(DEP_DELAY_NEW, na.rm=TRUE), 
             "Arrival Delay" = mean(ARR_DELAY_NEW, na.rm=TRUE))
+
 delay_by_day = gather(delay_by_day, "delay_type", "delay_time", 2:3)
 
-ggplot(delay_by_day, aes(DAY_OF_WEEK, y = delay_time, group = delay_type)) +
+ggplot(delay_by_day, aes(DAY_OF_WEEK, 
+                         y = delay_time, 
+                         group = delay_type)) +
+  
   geom_line(aes(linetype = delay_type)) + 
   geom_point() +
-  ggtitle("Avg. Arrival & Departure Delay During Thanksgiving") +
+  ggtitle("Average Arrival & Departure Delay During Thanksgiving") +
   labs(x = "Day of Week", 
        y = "Average Delay (mins)") +
-  theme(legend.title = element_blank(),
-        plot.title = element_text(face = "bold"))
-
+  theme_calc() +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  theme(plot.subtitle = element_text(hjust = 0.5)) +
+  guides(linetype = guide_legend(title="Delay Type")) +
+  theme(legend.title = element_text(hjust = 0.5))
 ```
 
 **Inference**: Our data captures flight delays both at origin and destination, and as there can be multiple causes for a delay, it is subdivived into the different categories of delay such as weather delay, carrier delay, taxi delay, etc. Therefore, before we continue to analyze the flight delays and their behavior with respect to other features, we would like to fix our delay variable to one that is of most applicable. 
@@ -488,17 +494,22 @@ delay_by_dept_time$DEP_TIME = str_pad(delay_by_dept_time$DEP_TIME, 4, pad = "0")
 delay_by_dept_time$DEP_TIME = substr(delay_by_dept_time$DEP_TIME, 1, 2)
 
 delay_by_dept_time = delay_by_dept_time %>% 
+  mutate(DEP_TIME = replace(DEP_TIME, DEP_TIME == "24", "00")) %>% 
   group_by(DEP_TIME) %>% 
   summarise(arr_delay_mean = mean(arr_delay))
+
 delay_by_dept_time = delay_by_dept_time %>% filter(!is.na(DEP_TIME))
 
 ggplot(delay_by_dept_time, aes(x = DEP_TIME, y = arr_delay_mean)) +
   geom_bar(stat = "identity") + 
   coord_polar(theta = "x") +
-  ggtitle("Avg. Arrival Delay Based on Departure Time") +
+  ggtitle("Average Arrival Delay Based on Departure Time") +
   labs(x = "Departure Hour (24 Hour Format)", 
        y = "Average Delay (mins)") +
-  theme(axis.ticks = element_blank(), plot.title = element_text(face = "bold"))
+  theme_calc() +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  theme(plot.subtitle = element_text(hjust = 0.5)) +
+  theme(legend.title = element_text(hjust = 0.5))
 ```
 
 **Inference**: We would now like to identify if there is any pattern to delay based on the departure time of flights. We are expecting that there would be more delays during peak hours which can cause a chain reaction and lead to subsequent flight delays. After plotting the departure hour of flights on a radial axis, we get to see something interesting and unsual. Contradictory to our expectation, the average delay of flights is much higher at the very starting of the day, between 1AM-4AM, drastically drops starting 5PM and continues to increase gradually till the end of the day. Though the gradual increase can be due to chain reaction of delays, the extremely high delay in the 1AM-4AM window could be due to an outlier and we will deep dive into this more to understand the reason.
@@ -515,8 +526,10 @@ ggplot(cancellations_by_day, aes(x = DAY_OF_WEEK, y = cancellations)) +
   ggtitle("Total Flight Cancellations During Thanksgiving Week (2015-2018)") +
   labs(x = "Day of Week", 
        y = "Total Cancellations") +
-  theme(legend.title = element_blank(),
-        plot.title = element_text(face = "bold"))
+  theme_calc() +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  theme(plot.subtitle = element_text(hjust = 0.5)) +
+  theme(legend.title = element_text(hjust = 0.5))
 ```
 
 **Inference**: As we suspect that outliers might have introduced higher flight delay in the 1AM-4AM period as compared to the rest of the day, we would like to check if the pattern is consistent across days of the week or across different years. Moreover, on exploring our data we understood that in extreme situations, there is more chances of flights getting cancelled all together than them suffering a high delay.
@@ -532,19 +545,24 @@ sunday_2018 = thanksgiving2 %>%
   summarise(arr_delay = mean(ARR_DELAY_NEW, na.rm=TRUE),
             weather_delay = mean(WEATHER_DELAY, na.rm = TRUE),
             carrier_delay = mean(CARRIER_DELAY, na.rm = TRUE)) %>% 
-  mutate(arr_delay = arr_delay - (weather_delay + carrier_delay))
+  mutate(arr_delay = arr_delay - (weather_delay + carrier_delay)) %>% 
+  rename("Arrival Delay" = arr_delay,
+         "Weather Delay" = weather_delay,
+         "Carrier Delay" = carrier_delay)
 
 sunday_2018 = gather(sunday_2018, "delay_type", "delay_time", 2:4)
 
 ggplot(sunday_2018, aes(x = reorder(OP_UNIQUE_CARRIER, -delay_time), 
                         fill = delay_type, y = delay_time)) +
   geom_bar(position = "stack", stat = "identity") + 
-  ggtitle("Cause of Flight Delays for Major Airlines in 2018 Sunday") +
+  ggtitle("Cause of Flight Delays for Major Airlines in 2018 on Sunday") +
   labs(x = "Airline", 
        y = "Average Delay (mins)") +
-  theme(legend.title = element_blank(),
-        plot.title = element_text(face = "bold"))
-
+  theme_calc() +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  theme(plot.subtitle = element_text(hjust = 0.5)) +
+  guides(fill = guide_legend(title="Delay Type")) +
+  theme(legend.title = element_text(hjust = 0.5))
 ```
 
 **Inference**: The next direction we took was to analyze whether a particular carrier contributed / suffered the most in terms of flight delays. Also, it would be important for us to also understand the cause for delay across carriers. Looking at the results, it is interesting to observe that United Airlines suffered major delays that were caused because of weather. The delays due to internal reasons within airlines are fairly consistent and nothing unusual comes out of it.
