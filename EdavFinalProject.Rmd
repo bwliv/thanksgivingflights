@@ -1,10 +1,9 @@
 ---
 title: |
-  |Why Flying During The Thanksgiving Holiday
-      |Isn't All That Bad
+  | Why Flying During The Thanksgiving 
+  | Holiday Isn't All That Bad
 author: |
-  |Siddhant Shandilya, Benjamin Livingston,
-    |Amogh Mishra, and Mohit Gulla
+  | Siddhant Shandilya, Benjamin Livingston, Amogh Mishra, and Mohit Gulla
 date: December 10, 2018
 output: 
   html_document:
