@@ -1,10 +1,10 @@
 ---
 title: |
-  Why Flying During The Thanksgiving Holiday |
-      Isn't All That Bad
+  |Why Flying During The Thanksgiving Holiday
+      |Isn't All That Bad
 author: |
-  Siddhant Shandilya, Benjamin Livingston, |
-  Amogh Mishra, and Mohit Gulla
+  |Siddhant Shandilya, Benjamin Livingston,
+    |Amogh Mishra, and Mohit Gulla
 date: December 10, 2018
 output: 
   html_document:
@@ -188,35 +188,35 @@ This graph is here to demonstrate that, as we expected, focusing on large, natio
 
 We will apply the following criteria for removing airlines:  
 
-*Must have flown flights during Thanksgiving all four years
-*Regional or heavily region-specific airlines (regional airlines would be contracted carriers such as Mesa, heavily region-focused airlines would be like Hawaiian Airlines).
-*Inactive airlines
+1. Must have flown flights during Thanksgiving all four years
+2. Regional or heavily region-specific airlines (regional airlines would be contracted carriers such as Mesa, heavily region-focused airlines would be like Hawaiian Airlines).
+3. Inactive airlines
 
 For this reason, we have decided to remove the following airlines:
-*Endeavor Air
-*ExpressJet 
-*Allegiant 
-*Hawaiian Airlines 
-*Envoy Air 
-*PSA Airlines 
-*SkyWest Airlines 
-*Virgin America 
-*Mesa Airlines 
-*Republic Airways 
++Endeavor Air
++ExpressJet 
++Allegiant 
++Hawaiian Airlines 
++Envoy Air 
++PSA Airlines 
++SkyWest Airlines 
++Virgin America 
++Mesa Airlines 
++Republic Airways 
 
 Which leaves us with the following airlines:
-*American Airlines 
-*Alaska Airlines 
-*JetBlue 
-*Delta 
-*Frontier 
-*Spirit 
-*United Airlines
-*Southwest 
+1. American Airlines 
+2. Delta Airlines
+3. United Airlines
+4. Southwest Airlines
+5. Alaska Airlines
+6. JetBlue
+7. Spirit Airlines
+8. Frontier Airlines
 
 These happen to be the eight largest passenger airlines in the United States, so this arrangement makes sense.
 
-We will present these airlines graphically sorted from the largest airline to the smallest, and keep this consistent throughout the presentation.
+We will present these airlines graphically sorted from the largest airline to the smallest (as they are above), and keep this consistent throughout the presentation.
 
 ```{r}
 thanksgiving = thanksgiving %>% filter(OP_UNIQUE_CARRIER %in% c(
@@ -931,7 +931,7 @@ ggplot(cancellations,aes(x=period,y=cancelled_per_day,fill=period)) +
     values = c('red','blue'),
     aesthetics = c("colour", "fill")) +
     theme(legend.position = 'none') +
-    theme(plot.title = element_text(hjust = 0.5)) +
+    theme(plot.title = element_text(hjust = 0.5,size=15)) +
     theme(plot.subtitle = element_text(hjust = 0.5)) +
     theme(axis.title = element_text(size=12), axis.text = element_text(size=11)) +
     theme(panel.grid.major.x = element_blank(), panel.grid.minor.x = element_blank()) +
