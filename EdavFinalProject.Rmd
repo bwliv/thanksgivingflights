@@ -1,10 +1,14 @@
 ---
-title: "Why Flying During The Thanksgiving Holiday |Isn't All That Bad"
-author: "Siddhant Shandilya, Benjamin Livingston, |Amogh Mishra, and Mohit Gulla"
-date: "December 10, 2018"
+title: |
+  Why Flying During The Thanksgiving Holiday |
+      Isn't All That Bad
+author: |
+  Siddhant Shandilya, Benjamin Livingston, |
+  Amogh Mishra, and Mohit Gulla
+date: December 10, 2018
 output: 
   html_document:
-    cold_folding: hide
+    code_folding: hide
 ---
 
 ```{r setup, include=FALSE}
@@ -17,7 +21,7 @@ knitr::opts_chunk$set(echo = FALSE)
 
 Any American has heard this adage a billion times - but really, what does it mean? 
 
-Americans live in constant fear of holiday travel, most without any real understanding of how bad it **actually** is and when the best times to travel **actually** are. This is particularly true for Thanksgiving - we're vaguely told to avoid Wednesday afternoon and Sunday, without any real understanding of the landscape.
+Americans live in constant fear of holiday travel, most without any real understanding of how bad it *actually* is and when the best times to travel *actually* are. This is particularly true for Thanksgiving - we're vaguely told to avoid Wednesday afternoon and Sunday, without any real understanding of the landscape.
 
 The authors of this problem experienced this firsthand during Thanksgiving 2019. During a Wednesday train trip from New York to Philadelphia, the American of the group told the rest of the group, "Penn Station is going to be a mob scene." 
 
@@ -29,7 +33,7 @@ Thanksgiving travel is a fickle beast, and perhaps aside from [the 405](https://
 
 Air travel is an especially interesting beast to tackle, because there are so many options. If you're driving from New York to Boston, you take I-95. If you're taking the train from Richmond to D.C., you take Amtrak. But when you're choosing your flights, there are so many more options in terms of airlines, local airports, and connecting airports, on top of the time old-question of when to leave to "beat the rush."
 
-We aim to answer **all** of these questions specifically for the Thanksgiving holiday, and help fliers make decisions about the best domestic airlines to use during the period.
+We aim to answer *all* of these questions specifically for the Thanksgiving holiday, and help fliers make decisions about the best domestic airlines to use during the period.
 
 ## Important Notes
 
@@ -43,7 +47,7 @@ When we say "delay", we mean arrival delay, not departure delay. This is based o
 
 Our delay statistics are calculated as follows: if a flight wasn't delayed by a minute or more, its delay value is considered to be zero (we won't award flights for arriving a few minutes early, and just "call a duck a duck" and consider an on-time flight to be an on-time flight).
 
-However, when we **count** delays, we will only include flights delayed by more than 15 minutes, which adheres to the FAA's definition of a delay.
+However, when we *count* delays, we will only include flights delayed by more than 15 minutes, which adheres to the FAA's definition of a delay.
 
 # II. Data Source
 
@@ -445,10 +449,10 @@ ggplot(by_airport_delay,aes(x=fct_reorder(ORIGIN,delay),y=delay,fill=fct_rev(per
   theme_bw() +
   xlab('') +
   ylab('Average Arrival Delay (Minutes)') +
-  ggtitle('Departure Delays For For Flights Originating From Top 10 US Airports Before/During Thanksgiving Holiday') +
-  labs(subtitle = '20 Days Before Thanksgiving Holiday vs. Five Days Of Thanksgiving Holiday') +
-  theme(plot.title = element_text(hjust = 0.5,size=16))  +
-  theme(plot.subtitle = element_text(hjust = 0.5,size=16))  +
+  ggtitle('Departure Delays For For Flights From Busiest 10 US Airports') +
+  labs(subtitle = '20 Before & Five Days During Thanksgiving Holiday') +
+  theme(plot.title = element_text(hjust = 0.5,size=14))  +
+  theme(plot.subtitle = element_text(hjust = 0.5,size=12))  +
   theme(legend.title = element_blank(),legend.text = element_text(size=11)) +
   theme(axis.title = element_text(size=12), axis.text = element_text(size=11)) +
   guides(fill = guide_legend(reverse=T)) +
@@ -466,7 +470,7 @@ This is quite a revelation! It raises a lot of questions. Could there be another
 
 We'll examine a lot of possibilities throughout the rest of this analysis. First, we'll compare flight cancellations per day between the "Pre-Thanksgiving" and "Thanksgiving" periods - perhaps these flights are delayed less on average because a lot more are cancelled?
 
-```{r echo=FALSE, fig.height=8}
+```{r echo=FALSE, fig.height=6}
 cancellations_by_aiport = alldates_top10 %>% 
   group_by(ORIGIN,period) %>% 
   summarize(cancelled= sum(CANCELLED,na.rm=TRUE)) %>%
@@ -478,10 +482,10 @@ ggplot(cancellations_by_aiport,aes(x=fct_reorder(ORIGIN,cancelled_per_day),y=can
   theme_bw() +
   xlab('') +
   ylab('Number of Cancellations Per Day') +
-  ggtitle('Flight Cancellations Per Day For Flights Originating From Top 10 US Airports Before/During Thanksgiving Holiday') +
-  labs(subtitle = '20 Days Before Thanksgiving Holiday vs. Five Days Of Thanksgiving Holiday') +
-  theme(plot.title = element_text(hjust = 0.5,size=16))  +
-  theme(plot.subtitle = element_text(hjust = 0.5,size=14))  +
+  ggtitle('Flight Cancellations Per Day') +
+  labs(subtitle = 'Flights Originating From Busiest 10 US Airports Before/During Thanksgiving Holiday') +
+  theme(plot.title = element_text(hjust = 0.5,size=14))  +
+  theme(plot.subtitle = element_text(hjust = 0.5,size=12))  +
   theme(legend.title = element_blank(),legend.text= element_text(size=11)) +
     theme(axis.title = element_text(size=12), axis.text = element_text(size=11)) +
   guides(fill = guide_legend(reverse=T)) +
@@ -697,7 +701,7 @@ Next, we'll move to comparing the Thanksgiving and 'Pre-Thanksgiving' holiday pe
 
 We will now answer a vital question: how has airline OTP (on-time performance) during the Thanksgiving holiday compared to airline OTP outside of the Thanksgiving holiday since the mergers of the major US airlines?
 
-We will research this question by comparing the 20 days before the Thanksgiving travel rush to the 5 days of the Thanksgiving travel period, in order ensure that we stay in a season with similar weather and travel patterns. We note, however, that likely captured **some** early Thanksgiving travel (which can be equally or perhaps even moreso plagued by delays).
+We will research this question by comparing the 20 days before the Thanksgiving travel rush to the 5 days of the Thanksgiving travel period, in order ensure that we stay in a season with similar weather and travel patterns. We note, however, that likely captured *some* early Thanksgiving travel (which can be equally or perhaps even moreso plagued by delays).
 
 We also share a caveat (which applies to all this research) that the four years since the recent major US airline mergers completed is a small sample size, and major weather events and airline disruptions could cause some skewness in this data. 
 
@@ -1182,7 +1186,7 @@ At the very least, we can pretty confidently say Thanksgiving travel isn't more 
 
 #####
 
-# *TO DO: Fix for color blind*
+# *TO DO: Fix color scales for the color-blind? (this was on assignment)*
 
 #####
 
