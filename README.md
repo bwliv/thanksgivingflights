@@ -1,11 +1,18 @@
 # thanksgivingflights
 Research into which airline has best OTP during Thanksgiving weekend
 
-# note on files
-.csv that are too large are zipped
+# analysis
+Analysis in .rmd can be seen and run here after unzipping data_clean files (see "note on source files")
 
-# note on years
-2014 not needed should ignore 
+# data cleaning
+The original code we used to clean the data
 
-# workflow
-will merge individual workflow files together later to make final project 
+# data_clean
+Cleaned data files (see "note on source files")
+
+# data_raw
+Original raw data files from Bureau of Transportation Statistics
+
+# note on source files
+.csv are too large and are zipped (this is why we have data_clean and data_raw instead of data/clean and data/raw as outlined in assignment) - you must unzip these to main directory (not subdirectory) to run analysis in markdown
+

@@ -1,5 +1,0 @@
-color = scale_colour_manual(
-    values = c('American'='#787890','Alaska'='#8caa48','JetBlue'='#003876',
-               'Delta'='#C01933','Frontier'='#248168','Spirit'='#feea67',
-               'United'='#8099d0','Southwest'='#935143'),
-    aesthetics = c("colour", "fill"))
