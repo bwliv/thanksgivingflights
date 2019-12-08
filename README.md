@@ -14,5 +14,5 @@ Cleaned data files (see "note on source files")
 Original raw data files from Bureau of Transportation Statistics
 
 # note on source files
-.csv are too large and are zipped (this is why we have data_clean and data_raw instead of data/clean and data/raw as outlined in assignment)
+.csv are too large and are zipped (this is why we have data_clean and data_raw instead of data/clean and data/raw as outlined in assignment) - you must unzip these to main directory (not subdirectory) to run analysis in markdown
 

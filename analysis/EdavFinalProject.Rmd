@@ -25,6 +25,7 @@ library(tidyr)
 library(stringr)
 library(reshape2)
 
+# remember to unzip data_clean contents to main directory!
 thanksgiving = read.csv('../thanksgiving.csv')
 alldates = read.csv('../alldates.csv')
 ```
