@@ -482,8 +482,8 @@ ggplot(cancellations_by_aiport,aes(x=fct_reorder(ORIGIN,cancelled_per_day),y=can
   theme_bw() +
   xlab('') +
   ylab('Number of Cancellations Per Day') +
-  ggtitle('Flight Cancellations Per Day') +
-  labs(subtitle = 'Flights Originating From Busiest 10 US Airports Before/During Thanksgiving Holiday') +
+  ggtitle('Flight Cancellations Per Day For 10 Busiest US Airports') +
+  labs(subtitle = '20 Days Before vs. Five Days During Thanksgiving Holiday') +
   theme(plot.title = element_text(hjust = 0.5,size=14))  +
   theme(plot.subtitle = element_text(hjust = 0.5,size=12))  +
   theme(legend.title = element_blank(),legend.text= element_text(size=11)) +
