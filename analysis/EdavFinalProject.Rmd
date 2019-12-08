@@ -186,7 +186,7 @@ Among the three major legacy mainline carriers, Delta has the fewest delays, fol
 
 Does this change by year, though? How much does our data vary by year?
 
-```{r echo=FALSE, fig.height=8}
+```{r echo=FALSE, fig.height=8.5}
 by_year = thanksgiving %>% group_by(OP_UNIQUE_CARRIER,year) %>% summarize(delay = mean(ARR_DELAY_NEW,na.rm=TRUE))
 
 ggplot(by_year,aes(x=fct_reorder(OP_UNIQUE_CARRIER,delay),y=delay,fill=as.factor(year))) + 
@@ -197,6 +197,7 @@ ggplot(by_year,aes(x=fct_reorder(OP_UNIQUE_CARRIER,delay),y=delay,fill=as.factor
   labs(fill = 'Year') +
   coord_flip()  +
   ggtitle('Average Thanksgiving Holiday Flight Delays') +
+  scale_fill_colorblind() +
   theme(plot.title = element_text(hjust = 0.5,size=23)) +
   theme(legend.title = element_blank(),legend.text = element_text(size=11)) +
   guides(fill = guide_legend(reverse=T)) +
@@ -240,7 +241,7 @@ Which leaves us with the following airlines:
 
 These happen to be the eight largest passenger airlines in the United States, so this arrangement makes sense.
 
-We will present these airlines graphically sorted from the largest airline to the smallest (as they are above), and keep this consistent throughout the presentation.
+We will present these airlines graphically sorted from the largest airline to the smallest (as they are above), and keep this consistent throughout the presentation. Merely for design purposes and ease of tracking, the coloring of an airline's bars will reflect a primary color of the airline (which means, of course, no matter what your eyesight, these colors will look the same as they do on the planes!).
 
 ```{r}
 thanksgiving = thanksgiving %>% filter(OP_UNIQUE_CARRIER %in% c(
@@ -627,9 +628,7 @@ ggplot(sunday_2018, aes(x = reorder(OP_UNIQUE_CARRIER, -delay_time),
   labs(x = "", 
        y = "Average Arrival Delay (Minutes)") +
   theme_bw() +
-  scale_colour_manual(
-    values = c('red','blue','darkgreen','orange'),
-    aesthetics = c("colour", "fill")) +
+  scale_fill_colorblind() +
   theme(plot.title = element_text(hjust = 0.5)) +
   theme(plot.subtitle = element_text(hjust = 0.5)) +
   guides(fill = guide_legend(title="Delay Type")) +
@@ -673,9 +672,7 @@ ggplot(sunday_2018_2, aes(x = reorder(ORIGIN, -delay_time),
        y = "Average Arrival Delay (Minutes)") +
   theme_bw() +
   xlab('') +
-  scale_colour_manual(
-    values = c('red','blue','darkgreen','orange'),
-    aesthetics = c("colour", "fill")) +
+  scale_fill_colorblind() +
   theme(plot.title = element_text(hjust = 0.5)) +
   theme(plot.subtitle = element_text(hjust = 0.5)) +
   guides(fill = guide_legend(title="Delay Type")) +
@@ -1078,9 +1075,7 @@ ggplot(bydatesgrouped,aes(x=nday,y=avgdelay,color=as.factor(year)),) +
   ylab('Average Arrival Delay (Minutes)') + 
   ggtitle('How Average Major Airline Delays Evolve During November') +
   labs(subtitle='20 Days Before Thanksgiving Travel Period + Five Days During Thanksgiving Holiday') +
-  scale_colour_manual(
-    values = c('red','blue','darkgreen','orange'),
-    aesthetics = c("colour", "fill")) +
+  scale_colour_colorblind() +
   theme(plot.title = element_text(hjust = 0.5)) +
   theme(plot.subtitle = element_text(hjust = 0.5)) +
   guides(color=guide_legend(title="Year")) +
@@ -1105,9 +1100,7 @@ ggplot(bydatesgrouped2,aes(x=nday,y=avgdelay)) +
   ylab('Average Arrival Delay (Minutes)') + 
   ggtitle('How Average Major Airline Delays Evolve During November') +
   labs(subtitle='20 Days Before Thanksgiving Travel Period + Five Days During Thanksgiving Holiday') +
-  scale_colour_manual(
-    values = c('red','blue','darkgreen','orange'),
-    aesthetics = c("colour", "fill")) +
+  scale_colour_colorblind() +
   theme(plot.title = element_text(hjust = 0.5)) +
   theme(plot.subtitle = element_text(hjust = 0.5)) +
   theme(panel.grid.major.x = element_blank(), panel.grid.minor.x = element_blank())
@@ -1134,9 +1127,7 @@ g = ggplot(bydatesgrouped3,aes(x=nday,y=cancelled_per_day,color=as.factor(year))
   ylab('Cancellations Per Day') + 
   ggtitle('How Cancellations Evolve During November, 2015-2018') +
   labs(subtitle='20 Days Before Thanksgiving Travel Period + Five Days Of Thanksgiving Holiday') +
-  scale_colour_manual(
-    values = c('red','blue','darkgreen','orange'),
-    aesthetics = c("colour", "fill")) +
+  scale_colour_colorblind() +
   theme(plot.title = element_text(hjust = 0.5)) +
   theme(plot.subtitle = element_text(hjust = 0.5)) +
   guides(color=guide_legend(title="Year")) +
@@ -1208,10 +1199,3 @@ Your choice of airport shouldn't matter too much - unless, of course, there's a 
 The bottom line is this - don't fret about airline disasters during the Thanksgiving holiday, because in the years since the last major airline mergers went down in the US, Thanksgiving holiday travel has actually been *less* wrought with delays than pre-Thanksgiving travel. Even with a disastrous weather delay factored in (we mentioned this caveat earlier), Thanksgiving flight delays haven't been as bad as pre-Thanksgiving delays over the last few years. 
 
 So, at the very least, we can pretty confidently say Thanksgiving travel isn't more delay-prone than non-Thanksgiving travel. We hope that next time you go to see your family and friends for the holiday, you can fly peacefully knowing you're just as likely to get there on time as you would be normally.
-
-#####
-
-# *TO DO: Fix color scales for the color-blind? (this was on assignment)*
-
-#####
-
