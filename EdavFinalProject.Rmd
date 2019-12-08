@@ -648,6 +648,7 @@ ggplot(sunday_2018_2, aes(x = reorder(ORIGIN, -delay_time),
   labs(x = "Airport", 
        y = "Average Arrival Delay (Minutes)") +
   theme_bw() +
+  xlab('') +
   scale_colour_manual(
     values = c('red','blue','darkgreen','orange'),
     aesthetics = c("colour", "fill")) +
@@ -758,7 +759,7 @@ ggplot(by_airline_n,aes(x=fct_relevel(OP_UNIQUE_CARRIER,'American',
   scale_colour_manual(
     values = c('red','blue'),
     aesthetics = c("colour", "fill")) +
-  theme(plot.title = element_text(hjust = 0.5)) +
+  theme(plot.title = element_text(hjust = 0.5,size=14)) +
   theme(plot.subtitle = element_text(hjust = 0.5)) +
   guides(fill=guide_legend(title="Period")) +
   theme(legend.title = element_blank(),legend.position = 'bottom', legend.direction = 'horizontal',legend.text= element_text(size=11)) +
@@ -796,7 +797,7 @@ ggplot(delay_c,aes(x=fct_relevel(OP_UNIQUE_CARRIER,'American',
                'Delta'='#C01933','Frontier'='#248168','Spirit'='#feea67',
                'United'='#8099d0','Southwest'='#5e2e24'),
     aesthetics = c("colour", "fill")) +
-  theme(plot.title = element_text(hjust = 0.5)) +
+  theme(plot.title = element_text(hjust = 0.5,size=16)) +
   theme(plot.subtitle = element_text(hjust = 0.5)) +
   theme(axis.title = element_text(size=12), axis.text = element_text(size=11)) +
   theme(panel.grid.major.x = element_blank(), panel.grid.minor.x = element_blank()) +
@@ -895,7 +896,7 @@ ggplot(alldates) +
   scale_colour_manual(
     values = c('red','blue'),
     aesthetics = c("colour", "fill")) +
-  theme(plot.title = element_text(hjust = 0.5)) +
+  theme(plot.title = element_text(hjust = 0.5,size=16)) +
   theme(plot.subtitle = element_text(hjust = 0.5)) +
   theme(axis.title = element_text(size=12), axis.text = element_text(size=11)) +
   theme(panel.grid.major.y = element_blank(), panel.grid.minor.y = element_blank()) +
@@ -963,7 +964,7 @@ ggplot(cancellations,aes(x=fct_relevel(OP_UNIQUE_CARRIER,'American',
   scale_colour_manual(
     values = c('red','blue'),
     aesthetics = c("colour", "fill"))  +
-    theme(plot.title = element_text(hjust = 0.5)) +
+    theme(plot.title = element_text(hjust = 0.5,size=16)) +
     theme(plot.subtitle = element_text(hjust = 0.5)) +
     theme(axis.title = element_text(size=12), axis.text = element_text(size=11)) +
   theme(legend.title = element_blank(),legend.position='bottom',legend.direction = 'horizontal') +
@@ -1004,7 +1005,7 @@ ggplot(cancellations_c,aes(x=fct_relevel(OP_UNIQUE_CARRIER,'American',
                'Delta'='#C01933','Frontier'='#248168','Spirit'='#feea67',
                'United'='#8099d0','Southwest'='#5e2e24'),
     aesthetics = c("colour", "fill")) +
-  theme(plot.title = element_text(hjust = 0.5)) +
+  theme(plot.title = element_text(hjust = 0.5,size=16)) +
   theme(plot.subtitle = element_text(hjust = 0.5)) +
   theme(legend.position='none') +
   theme(panel.grid.major.x = element_blank(), panel.grid.minor.x = element_blank()) +
