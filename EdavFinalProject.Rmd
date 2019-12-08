@@ -14,6 +14,21 @@ output:
 knitr::opts_chunk$set(echo = FALSE)
 ```
 
+```{r echo=FALSE}
+library(ggplot2)
+library(dplyr)
+library(ggthemes)
+library(forcats)
+library(ggpubr)
+library(lubridate)
+library(tidyr)
+library(stringr)
+library(reshape2)
+
+thanksgiving = read.csv('thanksgiving.csv')
+alldates = read.csv('alldates.csv')
+```
+
 # I. Introduction
 
 "Thanksgiving is the worst time to travel!"
@@ -50,27 +65,51 @@ However, when we *count* delays, we will only include flights delayed by more th
 
 # II. Data Source
 
-#####
+Our data source was the Bureau of Transportation Statistics' [Carrier On-Time Performance](https://www.transtats.bts.gov/DL_SelectFields.asp?Table_ID=236) archive, which allows customized downloads of flight delay statistics.
 
-# *TO DO: Add Data Source Info*
+Of course, flight data is rigorously maintained and regulated, so the veracity and accuracy of this data isn't a major concern. 
 
-#####
+There are a plethora of variables, including different types of delay times, taxi times, flight times, origin, destination, etc. There's much more than we needed here. We will consider a total of 1.6 million flights across these analyses. 
 
 # III. Data Transformation
 
-#####
+We customized our variables using the BTS' interface, then downloaded .csv data for four separate Novembers: 2015, 2016, 2017, and 2018. We then manually combined the five-day Thanksgiving holidays into one file, thanksgiving.csv.
 
-# *TO DO: Add Data transformation description*
+We did the same thing for the each of the four 25 day periods ending with the post-Thanksgiving Sunday. 
 
-#####
+These data cleaning files can be found under getdata.R and getdataALLnov.R in our [GitHub repo](https://github.com/bwliv/thanksgivingflights).
 
 # IV. Missing Values
 
-#####
+We will examine missing data patterns for 150 random rows of our data (which is about as many as we can view at once).
 
-# *TO DO: Add description of what we did with missing values*
+```{r echo = FALSE}
 
-#####
+tidyflights <- thanksgiving[sample(dim(thanksgiving)[1],150),] %>%
+  mutate(id=as.factor(X.1)) %>%
+  select(-X.1) %>%
+  gather(key, value, -id) %>%
+  mutate(Missing = ifelse(is.na(value), "Yes", "No")) %>%
+  filter(key != 'X')
+
+ggplot(tidyflights, aes(x = key, y = fct_rev(id), fill = Missing)) +
+geom_tile(color = "white") +
+ggtitle("Missing Data For Thanksgiving Flights") +
+scale_fill_viridis_d() + 
+theme_bw() +
+theme(
+  axis.text.x = element_blank(),
+  axis.ticks = element_blank(),
+  axis.title = element_blank(),
+  legend.title = element_text(hjust = 0.5),
+  plot.title = element_text(hjust = 0.5)
+) +
+  coord_flip()
+```
+
+It seems that, outside of one flight that was missing a curiously large amount of data, the only missing data is for weather delays or carirer delays - which we will asume were labeled NAs when that delay category did not apply to a flight. Outside of that, it seems that NAs shouldn't be a major barrier to our analysis.
+
+With that in mind, we will mostly pass over NAs (i.e. not include them in means) when computing our statistics, and keep this structure in mind when we consider delay types later.
 
 ### V. Results
 
@@ -79,21 +118,6 @@ Without any further ado, we will now present our research. Happy flying!
 ## What Airline Is Best For Thanksgiving?
 
 Let's start by examining the simplest decision an air traveler can make - which airline to fly during the holiday.
-
-```{r echo=FALSE}
-library(ggplot2)
-library(dplyr)
-library(ggthemes)
-library(forcats)
-library(ggpubr)
-library(lubridate)
-library(tidyr)
-library(stringr)
-library(reshape2)
-
-thanksgiving = read.csv('thanksgiving.csv')
-alldates = read.csv('alldates.csv')
-```
 
 ```{r echo=FALSE}
 thanksgiving = thanksgiving %>% mutate(OP_UNIQUE_CARRIER = recode(OP_UNIQUE_CARRIER, "9E" = "Endeavor Air",
@@ -1162,9 +1186,9 @@ This suggests that leaving early for the Thanksgiving holiday doesn't make you l
 
 In conclusion, the days around Thanksgiving are relatively calm - it's the weekends before and after Thanksgiving that cause the most problems for travelers.
 
-#####
-
 # VI. Interactive Component
+
+#####
 
 # *TO DO: Add interactive graphs here and analyze here*
 
@@ -1180,9 +1204,9 @@ Don't bother avoiding ultra low-cost carriers like Spirit and Frontier - their p
 
 Your choice of airport shouldn't matter too much - unless, of course, there's a storm.
 
-The bottom line is this - don't fret about airline disasters during the Thanksgiving holiday, because in the years since the last major airline mergers went down in the US, Thanksgiving holiday travel has actually been *less* wrought with delays than pre-Thanksgiving travel. 
+The bottom line is this - don't fret about airline disasters during the Thanksgiving holiday, because in the years since the last major airline mergers went down in the US, Thanksgiving holiday travel has actually been *less* wrought with delays than pre-Thanksgiving travel. Even with a disastrous weather delay factored in (we mentioned this caveat earlier), Thanksgiving flight delays haven't been as bad as pre-Thanksgiving delays over the last few years. 
 
-At the very least, we can pretty confidently say Thanksgiving travel isn't more delay-prone than non-Thanksgiving travel. We hope that next time you go to see your family and friends for the holiday, you can fly peacefully knowing you're just as likely to get there on time as you would be normally.
+So, at the very least, we can pretty confidently say Thanksgiving travel isn't more delay-prone than non-Thanksgiving travel. We hope that next time you go to see your family and friends for the holiday, you can fly peacefully knowing you're just as likely to get there on time as you would be normally.
 
 #####
 
@@ -1190,3 +1214,9 @@ At the very least, we can pretty confidently say Thanksgiving travel isn't more 
 
 #####
 
+
+#####
+
+# *TO DO: Organize GitHub as recommended here https://edav.info/project.html*
+
+#####
