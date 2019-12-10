@@ -1,0 +1,70 @@
+  <meta charset="utf-8">
+  <title>Thanksgiving Flight Delays</title>
+
+  <script src="https://d3js.org/d3.v5.min.js"></script>
+  <script src="https://unpkg.com/topojson@3"></script>
+  <script src="https://unpkg.com/d3-delaunay@4"></script>
+  <script src="https://unpkg.com/d3-geo-voronoi@1"></script>
+
+  <!-- <script src="tooltip.js"></script> -->
+
+  <style type="text/css">
+    body {
+  background-color: white;
+  font-family: sans-serif;
+}
+
+.land {
+  fill: #dddddd;
+}
+
+.border {
+  fill: none;
+  stroke-width: 1px;
+}
+
+.interior {
+  stroke: white;
+}
+
+.exterior {
+  stroke: #bbbbbb;
+}
+
+.airport {
+  fill: white;
+  opacity: 0.6;
+  stroke: #252525;
+}
+
+.flight {
+  fill: none;
+  stroke: #252525;
+  stroke-width: 1px;
+  stroke-opacity: 0.1;
+}
+
+.voronoi {
+  fill: none;
+  stroke: none;
+  stroke-width: 1px;
+}
+
+.highlight {
+  opacity: 1 !important;
+  stroke: red !important;
+  stroke-width: 2px !important;
+  stroke-opacity: 0.8 !important;
+}
+
+g#voronoi {
+  pointer-events: all;
+}
+
+/* shadow trick from bl.ocks.org */
+#tooltip {
+  font-size: 10pt;
+  font-weight: 900;
+  fill: blue;
+}
+  </style>

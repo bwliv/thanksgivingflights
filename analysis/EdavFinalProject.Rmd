@@ -85,7 +85,7 @@ These data cleaning files can be found under getdata.R and getdataALLnov.R in ou
 
 We will examine missing data patterns for 150 random rows of our data (which is about as many as we can view at once).
 
-```{r echo = TRUE}
+```{r echo = TRUE,message=FALSE}
 
 tidyflights <- thanksgiving[sample(dim(thanksgiving)[1],150),] %>%
   mutate(id=as.factor(X.1)) %>%
@@ -1223,11 +1223,19 @@ In conclusion, the days around Thanksgiving are relatively calm - it's the perio
 
 # VI. Interactive Component
 
-#####
+To drive home our analysis, we'll add two interactive graphs here.
 
-# *TO DO: Add interactive graphs here and analyze here*
+First, we offer a graph that will allow you to compare average delays for the airlines flying between any pair of cities that had a direct flight to speak of (if no direct flights occured, no data will be shown). 
 
-####
+For this graph, we included *all* airlines to be thorough - not just the eight key airlines we identified earlier. The same caveats mentioned earlier still apply to the remaining airlines we originally removed from the data set.
+
+### AMOGH GRAPH HERE
+
+Second, we present a map that will allow you to visualize the average delays for flights out of select major airports across the country. 
+
+### MOHIT GRAPH HERE
+
+These vizualizations are too complex and customizable to distill into sweeping statements, so we will allow you to draw your own conclusions from them. 
 
 # VII. Conclusion
 
