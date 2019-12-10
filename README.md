@@ -7,6 +7,9 @@ Analysis in .rmd can be seen and run here after unzipping data_clean files (see 
 # data cleaning
 The original code we used to clean the data
 
+# webfiles
+Files used to compile interactive visualizations
+
 # data_clean
 Cleaned data files (see "note on source files")
 
