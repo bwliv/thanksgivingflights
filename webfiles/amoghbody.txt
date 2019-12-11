@@ -1,0 +1,20 @@
+  <div>
+  Origin
+  <select class="form-control"  id="origin">
+  <option value="">-- Select --</option>
+  </select>
+  </div>
+  
+  <div>
+  Destination
+  <select class="form-control"  id="destination">
+  <option value="">-- Select --</option>
+  </select>
+  </div>
+  </div>
+  <div id='layout'>
+
+ <div id='container'>
+        <svg />
+      </div>
+    </div>

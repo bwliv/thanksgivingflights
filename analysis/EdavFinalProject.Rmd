@@ -39,15 +39,15 @@ Any American has heard this adage a billion times - but really, what does it mea
 
 Americans live in constant fear of holiday travel, most without any real understanding of how bad it *actually* is and when the best times to travel *actually* are. This is particularly true for Thanksgiving - we're vaguely told to avoid Wednesday afternoon and Sunday, without any real understanding of the landscape.
 
-The authors of this study experienced the volatility of Thanksgiving travel firsthand in 2019. During a Wednesday train trip from New York to Philadelphia, the American of the group told the rest of the group, "Penn Station is going to be a mob scene." 
+The authors of this study experienced the volatility of Thanksgiving travel firsthand in 2019. During a Wednesday train trip from New York to Philadelphia, the American of the group told the others, "Penn Station is going to be a mob scene." 
 
-Strangely enough, though, Penn Station was very calm when the group departed around 1 p.m. To the group's eyes, it looked no different than any day at 1 p.m.
+Strangely enough, though, Penn Station was calm when the group departed around 1 p.m. To the group's eyes, it looked no different than any other day at 1 p.m.
 
-Even stranger, 45 minutes later, Penn Station had allegedly become [an unmitigated disaster](https://twitter.com/JamesMartinSJ/status/1199761379584032769). Just like that. 
+Even stranger, 45 minutes later, Penn Station had become [an unmitigated disaster](https://twitter.com/JamesMartinSJ/status/1199761379584032769). Just like that. 
 
 Thanksgiving travel is a fickle beast, and perhaps aside from [the 405](https://www.youtube.com/watch?v=rnGlYG8UjFk), no form of travel feels more vulnerable than air travel. 
 
-Air travel is an especially interesting beast to tackle, because there are so many options. If you're driving from Phialdelphia to D.C., you take I-95. If you're taking the train from New York to Boston, you take Amtrak. But when you're choosing your flights, there are so many more options in terms of airlines, local airports, and connecting airports, on top of the time old-question of when to leave to "beat the rush."
+Air travel is an especially interesting entity to tackle, because there are so many options. If you're driving from Philadelphia to D.C., you take I-95. If you're taking the train from New York to Boston, you take Amtrak. But when you're choosing your flights, there are so many more options in terms of airlines, local airports, and connecting airports, on top of the time old-question of when to leave to "beat the rush."
 
 We aim to answer *all* of these questions specifically for the Thanksgiving holiday, and help fliers make decisions about the best domestic airlines to use during the period.
 
@@ -55,13 +55,13 @@ We aim to answer *all* of these questions specifically for the Thanksgiving holi
 
 ### What Period(s) We're Dealing With
 
-All of our analyses will deal with the five-day "Thanksgiving Holiday" period consisting of the Wednesday before Thanksgiving through the Sunday after Thanksgiving for the years 2015-2018 (prior to 2015, some of the recent airline mergers had not been completed, so we will leave those years out). We will also occasionally refer to "Pre-Thanksgiving", the 20 day period before this period (ending with the Tuesday before Thanksgiving).
+All of our analyses will deal with the five-day "Thanksgiving Holiday" period consisting of the Wednesday before Thanksgiving through the Sunday after Thanksgiving for the years 2015-2018 (prior to 2015, some of the recent airline mergers had not yet been completed, so we will leave those years out). We will also occasionally refer to "Pre-Thanksgiving", the 20 day period before this period (ending with the Tuesday before Thanksgiving).
 
 ### What Is A "Delay"?
 
 When we say "delay", we mean arrival delay, not departure delay. This is based on the assumption that travelers are most concerned with when they get where they're going.
 
-Our delay statistics are calculated as follows: if a flight wasn't delayed by a minute or more, its delay value is considered to be zero (we won't award flights for arriving a few minutes early, and just call a duck a duck and consider an on-time flight to be an on-time flight).
+Our delay statistics are calculated as follows: if a flight wasn't delayed by a minute or more, its delay value is considered to be zero (we won't award flights for arriving a few minutes early, and just call a duck a duck and consider an on-time flight to be an on-time flight). Cancelled and diverted flights are not assigned a delay value.
 
 However, when we *count* delays, we will only include flights delayed by more than 15 minutes, which adheres to the Federal Aviation Administration's definition of a delay.
 
@@ -85,7 +85,7 @@ These data cleaning files can be found under getdata.R and getdataALLnov.R in ou
 
 We will examine missing data patterns for 150 random rows of our data (which is about as many as we can view at once).
 
-```{r echo = TRUE,message=FALSE}
+```{r echo = TRUE,message=FALSE,warning=FALSE}
 
 tidyflights <- thanksgiving[sample(dim(thanksgiving)[1],150),] %>%
   mutate(id=as.factor(X.1)) %>%
@@ -109,7 +109,7 @@ theme(
   coord_flip()
 ```
 
-It seems that a very small number of flights are missing a curiously large amount of data, which it turns out are cancelled flights. We won't be able to include these in our delay time analysis, since these flights have no delay data to speak of. For this reason, we will examine cancelled flights independently later. 
+It seems that a very small number of flights are missing a curiously large amount of data, which turn out to be cancelled flights. We won't be able to include these in our delay time analysis, since these flights have no delay data to speak of. For this reason, we will examine cancelled flights independently later. 
 
 The only other missing data is for weather delays and carrier delays - which, judging by the patterns, we will assume were labeled NAs when no specific delay category applied a flight. Outside of that, it seems that NAs shouldn't be a major barrier to our analysis.
 
@@ -121,7 +121,7 @@ Without any further ado, we will now present our research. Happy flying!
 
 ## Which Airline Is Best For Thanksgiving?
 
-Let's start by examining the simplest decision an air traveler can make - which airline to fly during the holiday.
+Let's start by examining the simplest decision an air traveler can make: which airline to fly during the holiday.
 
 ```{r echo=TRUE}
 thanksgiving = thanksgiving %>% mutate(OP_UNIQUE_CARRIER = recode(OP_UNIQUE_CARRIER, "9E" = "Endeavor Air",
@@ -181,11 +181,11 @@ ggplot(by_airline,aes(x=fct_reorder(OP_UNIQUE_CARRIER,delay),y=delay)) +
   coord_flip()
 ```
 
-Ultra low-cost carrier Allegiant leads the pack in Thanksgivng delays, which isn't surprising considering its reputation (but wait, more on this in a second!). Regional airline Mesa Airlines comes next. Hawaiian Airlines has the fewest delays of any airline. 
+Ultra low-cost carrier Allegiant leads the pack in Thanksgiving delays, which isn't surprising considering its reputation (but wait, more on this in a second!). Regional airline Mesa Airlines comes next. Hawaiian Airlines has the fewest delays of any airline. 
 
-It is clear that focusing on large carriers will make the most sense for our purposes, since consumers are typically unfamiliar with regional airlines that fly under either a single mainline carrier's brand or multiple brands (when's the last time you booked a Mesa Airlines flight directly?) and those airlines tend to be available for only a small set of routes (Hawaiian Airlines won't do you much good unless you're flying to Hawaii, whereas a larger carrier's network is likely to cover most major routes).
+It is clear that focusing on large carriers will make the most sense for our purposes, since consumers are typically unfamiliar with regional airlines that fly under either a single mainline carrier's brand or multiple brands (when's the last time you booked a Mesa Airlines flight directly?) and those airlines tend to be available for only a small set of routes (Hawaiian Airlines won't do you much good unless you're flying to Hawaii), whereas a larger carrier's network is likely to cover most major routes.
 
-Among the three major legacy mainline carriers, Delta has the fewest delays, followed by America, and United performs by far the worst. Southwest performs a little better than American, and Alaska performs a little worse than American.
+Among the three major legacy mainline carriers, Delta has the fewest delays, followed by American, and United performs by far the worst. Southwest performs a little better than American, and Alaska performs a little worse than American.
 
 Does this vary by year, though? Examining this is difficult because of the structure of the data, as you'll see below.
 
@@ -212,7 +212,7 @@ ggplot(by_year,aes(x=fct_reorder(OP_UNIQUE_CARRIER,delay),y=delay,fill=as.factor
 
 We will examine year-to-year patterns (particularly the horrors of Thanksgiving Sunday 2018) later, but for now, this graph provides a curious revelation: Allegiant did not have any flights during the Thanksgiving holiday before 2018. No wonder its on time performance was so terrible - it only flew on Thanksgiving during the year when delays were by far the worst.
 
-This graph is here to demonstrate that, as we expected, focusing on large, national, major mainline airlines that flew in all four years will make the most sense for our purposes.
+This graph is here to demonstrate that, as we expected, focusing on large, national, major mainline airlines that flew for all four years will make the most sense for our purposes.
 
 We will apply the following criteria for removing airlines:  
 
@@ -221,6 +221,7 @@ We will apply the following criteria for removing airlines:
 3. No inactive airlines
 
 For this reason, we have decided to remove the following airlines:
+
 * Endeavor Air
 * ExpressJet 
 * Allegiant 
@@ -233,6 +234,7 @@ For this reason, we have decided to remove the following airlines:
 * Republic Airways 
 
 Which leaves us with the following eight airlines:
+
 * American Airlines 
 * Delta Airlines
 * United Airlines
@@ -278,7 +280,7 @@ First, we note that we are still dealing with the delays when the flight *arrive
 
 First, let's examine how delays vary across different states.
 
-```{r echo=TRUE}
+```{r echo=TRUE,message=FALSE,warning=FALSE}
 thanksgiving_region <- thanksgiving %>% mutate(region = if_else(DEST_STATE_ABR=="AK","West",
                                                        if_else(DEST_STATE_ABR=="AL","South",
                                                        if_else(DEST_STATE_ABR=="AR","South",
@@ -343,7 +345,7 @@ statepop2 <- statepop %>% left_join(unique(avg_delay[,c("DEST_STATE_ABR","avg_de
 statepop2$avg_delay <- ifelse(statepop2$abbr %in% c("DE","DC"),mean(statepop2$avg_delay,na.rm=T),statepop2$avg_delay)
 
 plot_usmap(data = statepop2, values = "avg_delay") +  theme(legend.position = "right") +
-  scale_fill_continuous(name = "Average Delay (Minutes)")  +   labs(title = "Average delay by states in the US") + 
+  scale_fill_continuous(name = "Average Delay (Minutes)")  +   labs(title = "Average Thanksgiving Holiday Flight Delays") + 
   theme(plot.title = element_text(hjust = 0.5,face="bold"),
           legend.title = element_text(hjust=0.5))
 ```
@@ -352,13 +354,13 @@ It's difficult to make a whole lot of this map, other than to say that North Dak
 
 Let's try grouping by region. We'll use a slight tweak of the [official U.S. Census Bureau definitions for regions of the United States](https://www2.census.gov/geo/pdfs/maps-data/maps/reference/us_regdiv.pdf), which we've outlined below.
 
-```{r echo=TRUE}
+```{r echo=TRUE,message=FALSE,warning=FALSE}
 statepop2 <- statepop %>% left_join(unique(thanksgiving_region[,c("DEST_STATE_ABR","region")]),by = c("abbr" = "DEST_STATE_ABR"))
 
 statepop2$region <- ifelse(statepop2$abbr %in% c("DE","DC"),"South",statepop2$region)
 
 plot_usmap(data = statepop2, values = "region") +  theme(legend.position = "right") +
-  scale_fill_discrete(name = "Regions")  +   labs(title = "Regions in the US") + 
+  scale_fill_discrete(name = "Regions")  +   labs(title = "Regions") + 
   theme(plot.title = element_text(hjust = 0.5,face="bold"),
         legend.title = element_text(hjust=0.5))
 ```
@@ -384,7 +386,7 @@ Delays appear to be the worst in the Northeast and West - which makes sense give
 
 Next, we will compare the number of flights delayed in different regions across the different years (again, a "delayed flight" is one that arrives more than 15 minutes late). 
 
-In this graph, we will examine how each region's delays were spread across the four years (assuming, for the purposes of this analysis, that there were a fairly equal number of flights all four years for each of the regions - we recognize that this creates a somewhat unusual mosaic plot, but it serves its purpose well).
+In this graph, we will examine how each region's delays were spread across the four years (assuming, for the purposes of this analysis, that there were a fairly equal number of flights all four years for each of the regions). We recognize that this creates a somewhat unusual mosaic plot, but it serves its purpose well.
 
 ```{r}
 by_region_delay = thanksgiving_region %>% 
@@ -410,7 +412,7 @@ vcd::mosaic(year ~ region,
 
 The mysterious 2018 mess had a bigger impact on the Midwest, Northeast, and South than it did on the West. This suggests that it was probably weather-related, but we'll explore that later. 
 
-Outside of this, it seems that delays are somewhat pocketed to different regions, but there are ripple effects that preclude a truly regional analysis.
+Outside of this, it seems that delays are somewhat pocketed to different regions, but there are ripple effects that prevent a truly regional analysis.
 
 This could change when we compare airlines regionally, though. 
 
@@ -450,7 +452,7 @@ ggplot(by_flight_delay,aes(x=fct_rev(fct_relevel(OP_UNIQUE_CARRIER,'American',
 
 There are a lot of things going on here, but it's fairly clear from this graph that airline performance does vary by region. For instance, Frontier is much worse than United for flights leaving from the South, but United performs worse when it comes to flights leaving from the Midwest (although this could be due to the 2018 mess we'll discuss later).
 
-We see that in the South, Delta and Southwest Airlines have the best performance, followed by American, which is intuitive as they all have giant hubs in that region. 
+We see that in the South, Delta and Southwest have the best performance, followed by American, which is intuitive as they all have giant hubs in that region. 
 
 We'll try a more granular approach to gain more insight.
 
@@ -488,7 +490,7 @@ ggplot(thanksgiving_region_dot_plot, aes(x = delay, y = reorder(DEST, delay),col
 ```
 
 
-The worst-affected airports are the Rapid City, SD (RAP), Santa Barbara, CA (SBA), and Fargo, ND (FAR).
+The worst-affected airports are Rapid City, SD (RAP), Santa Barbara, CA (SBA), and Fargo, ND (FAR).
 
 Of course, many of these are small airports, so probably either (a) you're forced to fly out of them to get where you're going to (so this information won't help your decision-making, and will only needlessly scare you), or (b) they're of no relevance to you because you're unlikely to find an itinerary that involves changing planes there.
 
@@ -514,7 +516,7 @@ ggplot(by_airport_delay,aes(x=fct_reorder(ORIGIN,delay),y=delay,fill=fct_rev(per
   theme_bw() +
   xlab('') +
   ylab('Average Arrival Delay (Minutes)') +
-  ggtitle('Departure Delays For For Flights From Busiest 10 US Airports') +
+  ggtitle('Delays For Flights From Busiest 10 US Airports') +
   labs(subtitle = '20 Days Before & Five Days During Thanksgiving Holiday') +
   theme(plot.title = element_text(hjust = 0.5,size=14))  +
   theme(plot.subtitle = element_text(hjust = 0.5,size=12))  +
@@ -564,15 +566,15 @@ ggplot(cancellations_by_aiport,aes(x=fct_reorder(ORIGIN,cancelled_per_day),y=can
 
 It seems that most of these airports either have fewer flight cancellations per day or about the same number cancelled per day - except Chicago, which sees a massive spike as it leapfrogs San Francisco to the top.
 
-Chicago's oddly high number of cancellations ties into the 2018 anamoly (don't worry, we'll address it shortly!).
+Chicago's oddly high number of cancellations ties into the 2018 anomaly (don't worry, we'll address it shortly!).
 
-Now we'll start tackling a question perhaps even jucier than airline choice - *when* do you travel?
+Now we'll start tackling a question perhaps even juicier than airline choice - *when* do you travel?
 
 ## Comparing Days & Times Of Travel
 
 We analyze how airline delays progress leading up to and following the day of Thanksgiving itself. This will help us ascertain whether there is a general trend of airline delays and cancellations on specific days.
 
-Our data captures multiple potential causes for delays: it is subdivived into the different categories such as weather delays, carrier delays, taxi delays, etc. We'll get to a couple of these in a moment.
+Our data captures multiple potential causes for delays: it is subdivided into the different categories such as weather delays, carrier delays, taxi delays, etc. We'll get to a couple of these in a moment.
 
 First, though, let's examine how delays change based on time of day.
 
@@ -680,17 +682,17 @@ ggplot(sunday_2018, aes(x = reorder(OP_UNIQUE_CARRIER, -delay_time),
   theme(axis.ticks.x = element_blank())
 ```
 
-United Airlines suffered major weather delays that day. Every other delay cause stayed fairly consistent across most airlines, but United Airlines clearly suffered the most. 
+United Airlines suffered major weather delays that day. Every other type of delay cause stayed fairly consistent across most airlines, but United Airlines clearly struggled the most. 
 
 During our deep dive into this issue, we found [a news article online talking specifically about the day and the year we were observing.](https://www.usatoday.com/story/travel/flights/todayinthesky/2018/11/25/snow-flights-canceled-storm-snarls-post-thanksgiving-sunday/2107525002/)
 
-A snippet from this aricle:
+A snippet from this article:
 
 *Most of those (delays) came in the Midwest, where a winter storm was bringing snow, ice and rain to a swath of the Great Plains and Midwest. Blizzard conditions were possible Sunday across parts of Iowa, Illinois, Missouri and Wisconsin.*
 
 *O’Hare is a major connecting hub for both United and American, each of which had canceled hundreds of mainline and regional flights. By FlightAware's count. the cancellations accounted for more than 25 percent of Sunday's entire schedule at O'Hare. For Monday, more than 180 flights -- about 5 percent of the day's schedule -- had already been grounded by Sunday evening.*
 
-Looking at aiports may give us more insight:
+Looking at airports may give us more insight.
 
 ```{r}
 sunday_airports = alldates_top10 %>%
@@ -728,9 +730,9 @@ ggplot(sunday_2018_2, aes(x = reorder(ORIGIN, -delay_time),
 
 Chicago O'Hare, San Francisco, and Denver are all United hubs and had significant weather delays, so it makes sense that United would have suffered the most from the weather.
 
-This backs our hypothesis that the delay on this particular day was due to weather reasons, and was not because of Thanksgiving rush. 
+This backs our hypothesis that the delay surge on this particular day was a product of weather, not a product of the Thanksgiving rush. 
 
-This is an important caveat to our data. We opted to keep it in as weather is just one of many challenges airlines face, but it certainly skews the data against United a bit.
+This is an important caveat to our data. We opted to keep this data in our dataset, as weather is just one of many challenges airlines face - but it certainly skews the data against United a bit.
 
 Perhaps we should examine how badly 2018 penalized United (and maybe other airlines).
 
@@ -758,17 +760,17 @@ ggplot(not_2018,aes(x=OP_UNIQUE_CARRIER,y=delay,fill=period)) +
   theme(legend.position = 'bottom',legend.title=element_blank())
 ```
 
-United would still be among the worst airines for Thanksgiving OTP even without 2018, but 2018 (particularly that Sunday) made United look worse than it normally is. A similar statement could be made about Frontier and JetBlue.
+United would still be among the worst airlines for Thanksgiving OTP even without 2018, but 2018 (particularly that Sunday) made United look worse than it normally is. A similar statement could be made about Frontier and JetBlue.
 
 Next, we'll move to comparing the Thanksgiving and 'Pre-Thanksgiving' holiday periods.
 
 ## The Major Revelation: Maybe Thanksgiving Isn't So Bad
 
-We will now answer a vital question: how has airline OTP during the Thanksgiving holiday compared to airline OTP outside of the Thanksgiving holiday>
+We will now answer a vital question: how has airline OTP during the Thanksgiving holiday compared to airline OTP outside of the Thanksgiving holiday?
 
-We will research this question by comparing the 20 days before the Thanksgiving travel rush to the five days of the Thanksgiving travel period, in order ensure that we stay in a season with similar weather and travel patterns. We note, however, that likely captured *some* early Thanksgiving travel (which can be equally or perhaps even moreso plagued by delays). We'll discuss this more in a bit.
+We will research this question by comparing the 20 days before the Thanksgiving travel rush to the five days of the Thanksgiving travel period, in order ensure that we stay in a season with similar weather and travel patterns. We note, however, that likely captured *some* early Thanksgiving travel (which could be equally or perhaps even moreso plagued by delays). We'll discuss this more in a bit.
 
-We also share a caveat (which applies to all this research) that the four years since the recent major US airline mergers completed constitute a small sample size, and major weather events and airline disruptions could (and probably did) cause some skewness in this data. 
+We also share a caveat (which applies to all this research) that the four years since the recent major US airline mergers completed constitute a small sample size, and major weather events and airline disruptions could (and as we saw, probably did) cause some skewness in this data. 
 
 That being said, let's compare Thanksgiving and pre-Thanksgiving.
 
@@ -797,9 +799,9 @@ A stunner: over the past four years, airlines have actually gotten better at on-
 
 There's an important caveat worth mentioning here: the data we are using considers any early flight to be simply "on-time" (and does not give it a negative delay value), as we believe that it makes the most sense to call a spade a spade and consider any flight that isn't late to be on time. 
 
-However, flights are typically early when all goes right, so it's possible that Thanksgiving causes a lot of shorter "delays" that result in flights being on-time instead of early, meaning Thanksgiving flights aren't really quicker. 
+However, flights are typically early when all goes right (due to schedule padding), so it's possible that Thanksgiving causes a lot of shorter "delays" that result in flights being on-time instead of early, meaning Thanksgiving flights aren't really quicker. 
 
-Those are fairly flimsy caveats, though, so our result stands: and at the very least, it seems evident that delays don't get worse during Thanksgiving (at least for flights that aren't cancelled or diverted, which we'll address later).
+Those are fairly flimsy caveats, though, so our result stands: at the very least, it seems evident that delays don't get worse during Thanksgiving (at least for flights that aren't cancelled or diverted, which we'll address later).
 
 Now let's examine how this trend plays out for different airlines.
 
@@ -872,13 +874,13 @@ ggplot(delay_c,aes(x=fct_relevel(OP_UNIQUE_CARRIER,'American',
 
 All eight airlines see their on-time performance improve during Thanksgiving. Wow!
 
-Outside of that, the most evident (and strangest) trend here is that Spirit Airlines and Frontier Airlines - two ultra low-cost carriers with poor service reputations - have had a significantly shorter average flight delay during the Thanksgiving holiday than they have prior to the Thanksgiving holiday, particularly Spirit Airlines.
+Outside of that, the most evident (and strangest) trend here is that Spirit Airlines and Frontier Airlines - two ultra low-cost carriers with poor service reputations - have had significantly shorter average flight delays during the Thanksgiving holiday than they havehad prior to the Thanksgiving holiday, particularly Spirit Airlines.
 
-This suggests that there is no need to avoid Spirit and Frontier during the Thanksgiving holiday. In fact, one could argue if there's any time to fly these airlines, it's Thanksgiving: their OTP has lagged much less during this peak travel period. United (the third-worst airline for OTP) also sees an improvement in performance around Thanksgiving.
+This suggests that there is no additional need to avoid Spirit and Frontier during the Thanksgiving holiday. In fact, one could argue if there's any time to fly these airlines, it's Thanksgiving: their OTP has lagged much less during this peak travel period. United (the third-worst airline for OTP) also sees an improvement in performance around Thanksgiving.
 
-Perhaps Thanksgiving has a normalizing effect on these airlines. Frontier technically still has the worst Thanksgiving travel delays of any of these airlines, but they close the gap by a remarkable margin.
+Perhaps Thanksgiving has a normalizing effect on these airlines. Frontier technically still has the worst Thanksgiving travel delays of any of these airlines, but they close the gap, and Spirit improves by a remarkable margin.
 
-So flight delays are shorter during Thanksgiving. Surprise!
+Let's not bury the lede here: flight delays are shorter during Thanksgiving. Surprise!
 
 Are there more long delays, though - say, those over 30 minutes? Let's consider that now.
 
@@ -915,9 +917,9 @@ ggplot(by_airline_30,aes(x=fct_relevel(OP_UNIQUE_CARRIER,'American',
 
 It seems that long delays are fairly evenly distributed across all airlines and dates, so not much to add there.
 
-What about *really* long delays though? Which airlines have the most of those, and during what period do these happen the most? 
+What about *really* long delays though? Which airlines have the most of those, and during which period do these happen the most? 
 
-```{r echo=TRUE}
+```{r echo=TRUE,message=FALSE,warning=FALSE}
 ggplot(alldates) +
   geom_boxplot(aes(x = fct_rev(fct_relevel(OP_UNIQUE_CARRIER,'American',
             'Delta',
@@ -949,7 +951,7 @@ ggplot(alldates) +
 
 ```
 
-```{r echo=TRUE}
+```{r echo=TRUE,message=FALSE,warning=FALSE}
 ggplot(alldates) +
   geom_boxplot(aes(x = fct_rev(period),y = ARR_DELAY_NEW,fill=period),alpha=0.2) +
   theme_bw() +
@@ -1085,17 +1087,17 @@ This suggests that cancellations are high-variation, "luck of the draw" (or more
 
 That being said, JetBlue has done an exceptionally good job of getting their flights in the air over the last four Thanksgiving holidays.
 
-It's also worth noting that Southwest seems to have had extreme cancellation problems during the last four Novembers, but performed better during the holiday than before the holiday period.
+It's also worth noting that Southwest seems to have had extreme cancellation problems during the last four Novembers (perhaps they had one particuarly horrible day), but clearly performed better during the holiday than before the holiday period.
 
-Most airlines appeared to get a bit better at getting their flights in the air, except Delta, which was the only airline out of the eight to have more cancellations during the Thanksgiving holiday. Good job!
+Most airlines appeared to get a bit better at getting their flights in the air, except Delta, which was the only airline out of the eight to have more cancellations during the Thanksgiving holiday. Well done, airlines!
 
-So overall, it certainly seems that travelling before Thanksgiving yields better results than traveling during Thanksgiving, a caveat that we mentioned earlier.
+So overall, it certainly seems that travelling before Thanksgiving yields better results than traveling during Thanksgiving, even keeping in mind the caveats that we mentioned earlier.
 
 So let's see: if we examine the five days of the Thanksgiving travel rush and the 20 days before, do we see a peak in delays at any particular point? Could it be that the worst delays happen 3-5 days before Thanksgiving (i.e. the weekend before plus Monday and Tuesday), rather than during the traditional travel rush?
 
 Let's see what the graphs say. We'll examine the 20 'Pre-Thanksgiving' days leading up to the Thanksgiving holiday and the five days of the Thanksgiving holiday together as a single 25 day period.
 
-```{r echo=TRUE}
+```{r echo=TRUE,warning=FALSE,message=FALSE}
 bydates = alldates %>% 
   mutate(nday = mday(FL_DATE))
 
@@ -1128,7 +1130,7 @@ ggplot(bydatesgrouped,aes(x=nday,y=avgdelay,color=as.factor(year)),) +
 
 This is odd - we're seeing a number of peaks before the Thanksgiving holiday even begins. Perhaps we should combine these years and see what trend develops.
 
-```{r echo=TRUE}
+```{r echo=TRUE,warning=FALSE,message=FALSE}
 bydatesgrouped2 = bydates %>%
   group_by(nday) %>%
   summarize(avgdelay = mean(ARR_DELAY_NEW,na.rm=TRUE))
@@ -1153,7 +1155,7 @@ How strange: while there's a peak at the end of the Thanksgiving holiday (the fi
 
 What about cancellations? Let's take a look.
 
-```{r echo=TRUE}
+```{r echo=TRUE,warning=FALSE,message=FALSE}
 bydatesgrouped3 = bydates %>%
   group_by(nday,year) %>%
   summarize(cancellations = sum(CANCELLED,na.rm=TRUE)) %>%
@@ -1182,13 +1184,13 @@ g
 
 That horrible 2018 Sunday is making it hard to read this graph, so let's zoom in a bit.
 
-```{r echo=TRUE}
+```{r echo=TRUE,warning=FALSE,message=FALSE}
 g + coord_cartesian(ylim=c(0,20))
 ```
 
 These peaks are hard to read - let's try combining these years again.
 
-```{r echo=TRUE}
+```{r echo=TRUE,warning=FALSE,message=FALSE}
 bydatesgrouped4 = bydates %>%
   group_by(nday) %>%
   summarize(cancellations = sum(CANCELLED,na.rm=TRUE)) %>%
@@ -1215,7 +1217,7 @@ ggplot(bydatesgrouped4,aes(x=nday,y=cancelled_per_day),) +
 
 Again, it doesn't seem like there's a massive jump caused by Thanksgiving holiday travel.
 
-These graphs yield an unexpected result - it seems that, generally, the Wednesday before Thanksgiving (day 21) isn't nearly as bad of a travel day as the week leading up to Thanksgiving, which appears to be a terrible time for travel. The weekend after Thanksgiving is messy too, but is clearly affected by that 2018 mess. 2015-2017 saw a jump in delays on Thanksgiving Sunday, but not really for Wednesday - which many anecdotally consider to be the worst travel day of the year. They could be wrong, at least when it comes to flight delays.
+These graphs yield an unexpected result - it seems that, generally, the Wednesday before Thanksgiving (day 21) isn't nearly as bad for delays as the week leading up to Thanksgiving, which appears to be more delay-ridden. The weekend after Thanksgiving is messy too, but is clearly affected by that 2018 mess. 2015-2017 saw a jump in delays on Thanksgiving Sunday, but not really for Wednesday - which many anecdotally consider to be the worst travel day of the year. They could be wrong, at least when it comes to flight delays.
 
 This suggests that leaving a few days early for the Thanksgiving holiday doesn't make you any less prone to delays, while coming home a day or two before Sunday could make your flight more reliable.
 
@@ -1225,7 +1227,7 @@ In conclusion, the days around Thanksgiving are relatively calm - it's the perio
 
 To drive home our analysis, we'll add two interactive graphs here.
 
-First, we offer a graph that will allow you to compare average delays for the airlines flying between any pair of cities that had a direct flight to speak of (if no direct flights occured, no data will be shown). 
+First, we offer a graph that will allow you to compare average delays for the airlines flying between any pair of cities that had a direct flight to speak of (if no direct flights occurred between the cities, no data will be shown). 
 
 For this graph, we included *all* airlines to be thorough - not just the eight key airlines we identified earlier. The same caveats mentioned earlier still apply to the remaining airlines we originally removed from the data set.
 
@@ -1235,7 +1237,7 @@ Second, we present a map that will allow you to visualize the average delays for
 
 ### MOHIT GRAPH HERE
 
-These vizualizations are too complex and customizable to distill into sweeping statements, so we will allow you to draw your own conclusions from them. 
+These visualizations are too complex and customizable to distill into sweeping statements, so we will allow you to draw your own conclusions from them. 
 
 # VII. Conclusion
 
@@ -1243,10 +1245,10 @@ There are a plethora of takeaways that have been scattered throughout this analy
 
 When planning Thanksgiving holiday air travel, don't obsess about straying from the traditional travel periods - it doesn't seem that the Wednesday before Thanksgiving is much worse for delays than any other day, and the Sunday after isn't (usually) all that bad. Don't bother leaving a few days early to save yourself a travel headache - in fact, you may make it worse by doing that. If you want to beat the rush, you absolutely want to leave earlier in the day - not earlier in the week. 
 
-Don't bother avoiding ultra low-cost carriers like Spirit and Frontier - their performance actually *improves* during the holiday (and significantly so!), contrary to what you might think. That's the most noticeable difference between airline OTP before vs. during the holiday period.
+Don't bother avoiding ultra low-cost carriers like Spirit and Frontier - their performance actually *improves* during the holiday (and significantly so!), contrary to what you might think. That's the most noticeable difference between airline OTP before versus during the holiday period.
 
 Your choice of airport shouldn't matter too much - unless, of course, there's a storm.
 
-The bottom line is this - don't fret about airline disasters during the Thanksgiving holiday, because in the years since the last major airline mergers went down in the US, Thanksgiving holiday travel has actually been *less* wrought with delays than pre-Thanksgiving travel. Even with a disastrous weather delay factored in (we mentioned this caveat earlier), Thanksgiving flight delays haven't been as bad as pre-Thanksgiving delays over the last few years. Of course, this analysis was done using a small sample of years that could be affected by other external factors we did not detail here, but the surprising trend we found is difficult to write off.
+The bottom line is this: don't fret about airline disasters during the Thanksgiving holiday, because in the years since the last major airline mergers went down in the United States, Thanksgiving holiday travel has actually been *less* wrought with delays than pre-Thanksgiving travel. Even with a disastrous weather delay factored in (we mentioned this caveat earlier), Thanksgiving flight delays haven't been as bad as pre-Thanksgiving delays over the last few years. Of course, this analysis was done using a small sample of years that could be affected by other external factors we did not detail here, but the surprising trend we found is difficult to write off.
 
-So, at the very least, we can pretty confidently say Thanksgiving travel isn't more delay-prone than non-Thanksgiving travel. We hope that he next time you go to see your family and friends for the holiday, you can fly peacefully knowing you're just as likely to get there on time as you would be normally.
+So, at the very least, we can pretty confidently say Thanksgiving travel isn't more delay-prone than non-Thanksgiving travel. We hope that the next time you go to see your family and friends for the holiday, you can fly peacefully knowing you're just as likely to get there on time as you would be normally.
