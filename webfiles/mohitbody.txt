@@ -1,4 +1,3 @@
-
 <h2 align = 'center'>Flight Delays For Major Airports</h2>
 <h3 align ='center'><em>Thicker lines correspond to higher average delays</em></h3>
 <!-- must be 960x600 to match topojson us atlas files -->
