@@ -4,7 +4,7 @@ title: |
   | Holiday Isn't All That Bad
 author: |
   | Siddhant Shandilya, Benjamin Livingston, Amogh Mishra, and Mohit Gulla
-date: December 10, 2018
+date: December 10, 2019
 output: 
   html_document:
     code_folding: hide
